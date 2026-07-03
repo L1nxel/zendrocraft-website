@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Updates • ZendroCraft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <!-- Navbar -->
+    <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
+        <div class="max-w-screen-xl mx-auto px-8 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-x-3" onclick="window.location.href='index.html'" style="cursor: pointer;">
+                <div class="w-9 h-9 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-cube text-white text-2xl"></i>
+                </div>
+                <span class="font-display text-2xl font-semibold tracking-tighter">ZendroCraft</span>
+            </div>
+            <div>
+                <button onclick="window.location.href='index.html'" 
+                        class="px-5 py-2 text-sm font-medium hover:bg-slate-900 rounded-3xl transition-colors">
+                    ← Back to Home
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-screen-xl mx-auto px-8 py-12">
+        <div class="max-w-3xl">
+            <h1 class="text-5xl font-display font-semibold tracking-tighter mb-2">Server Updates</h1>
+            <p class="text-slate-400 text-lg mb-10">All the latest changes, features, and news from ZendroCraft.</p>
+
+            <!-- Update Entry -->
+            <div class="mb-10 border-l-4 border-indigo-500 pl-6">
+                <div class="flex items-center gap-x-3 mb-2">
+                    <span class="font-semibold text-lg">v1.4.2 - The Big Economy Update</span>
+                    <span class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-2xl">Jan 28, 2026</span>
+                </div>
+                <div class="prose prose-invert text-slate-300 text-[15px]">
+                    <ul class="list-disc pl-5 space-y-1.5">
+                        <li>Added new jobs system with 6 different professions</li>
+                        <li>Completely reworked the shop and auction house</li>
+                        <li>Added daily login rewards</li>
+                        <li>Fixed major lag issues during peak hours</li>
+                        <li>New custom enchantments: Auto-Smelt, Veinminer, and more</li>
+                    </ul>
+                </div>
+                <div class="mt-4 text-xs text-slate-500">Posted by <span class="text-slate-400">Admin • Zendro</span></div>
+            </div>
+
+            <div class="mb-10 border-l-4 border-indigo-500 pl-6">
+                <div class="flex items-center gap-x-3 mb-2">
+                    <span class="font-semibold text-lg">v1.4.1 - Quality of Life Patch</span>
+                    <span class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-2xl">Jan 15, 2026</span>
+                </div>
+                <div class="prose prose-invert text-slate-300 text-[15px]">
+                    <ul class="list-disc pl-5 space-y-1.5">
+                        <li>Improved server performance by ~35%</li>
+                        <li>Fixed several bugs with claim protection</li>
+                        <li>Added /spawn and /home commands</li>
+                        <li>New player tutorial system</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
