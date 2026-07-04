@@ -462,7 +462,9 @@ async function fetchServerStatus() {
     const statusDiv = document.getElementById('server-status');
     
     try {
-        const response = await fetch('https://api.mcsrvstat.us/3/play.zendrocraft.com');
+        // Cache busting
+        const timestamp = Date.now();
+        const response = await fetch(`https://api.mcsrvstat.us/3/play.zendrocraft.com?_=${timestamp}`);
         const data = await response.json();
 
         if (data.online) {
@@ -472,6 +474,7 @@ async function fetchServerStatus() {
         }
     } catch (error) {
         statusDiv.innerHTML = `Could not load status`;
+        console.error("Player counter error:", error);
     }
 }
 
