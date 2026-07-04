@@ -139,6 +139,13 @@
             <p class="text-xl text-slate-400 max-w-md mb-8">
                 A premium Minecraft experience. Build, survive, and connect with an amazing community.
             </p>
+<div class="inline-flex items-center gap-x-2 px-4 py-1.5 bg-slate-900 border border-slate-800 rounded-3xl mb-6">
+    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+    
+    <div id="server-status" class="text-sm font-medium text-emerald-400">
+        Loading server status...
+    </div>
+</div>
 
             <div class="flex items-center gap-x-4">
                 <button onclick="copyServerIP()" 
@@ -446,7 +453,31 @@
                 prompt('Copy this IP:', 'Play.ZendroCraft.Com');
             });
         }
+    async function fetchServerStatus() {
+        const statusDiv = document.getElementById('server-status');
+        if (!statusDiv) return;
 
+        try {
+            const timestamp = Date.now();
+            const response = await fetch(
+                `https://api.mcstatus.io/v2/status/java/play.zendrocraft.com?_=${timestamp}`,
+                { signal: AbortSignal.timeout(8000) }
+            );
+            const data = await response.json();
+
+            if (data.online) {
+                statusDiv.innerHTML = `Online <strong>${data.players.online} / ${data.players.max}</strong> players`;
+            } else {
+                statusDiv.innerHTML = `Online • Join play.zendrocraft.com`;
+            }
+        } catch (error) {
+            console.error("Player counter error:", error);
+            statusDiv.innerHTML = `Online • Join play.zendrocraft.com`;
+        }
+    }
+
+    fetchServerStatus();
+    setInterval(fetchServerStatus, 120000);
         window.onload = function() {
             initializeTailwind();
         }
