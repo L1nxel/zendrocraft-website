@@ -457,7 +457,6 @@
         window.onload = function() {
             initializeTailwind();
         }
-    </script>
 <script>
 async function fetchServerStatus() {
     const statusDiv = document.getElementById('server-status');
@@ -477,7 +476,7 @@ async function fetchServerStatus() {
 }
 
 fetchServerStatus();
-setInterval(fetchServerStatus, 60000); // Refresh every 60 seconds
+setInterval(fetchServerStatus, 60000);
 </script>
 </body>
 </html>
