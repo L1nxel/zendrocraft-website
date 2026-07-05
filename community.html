@@ -591,20 +591,17 @@ async function submitPost() {
         return;
     }
 
-    // === Get the current logged-in user (most reliable method) ===
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
     if (userError || !user) {
-        console.error("User not found:", userError);
-        alert("You must be logged in to post. Please log in again.");
+        alert("You must be logged in to post.");
         closeUploadModal();
         showLoginModal();
         return;
     }
 
-    console.log("Posting as user:", user.id); // For debugging
+    console.log("%c[Post] Attempting to post as user:", "color: #22c55e", user.id);
 
-    // Show loading state
     const postBtn = document.querySelector('#upload-modal button[onclick*="submitPost"]');
     const originalText = postBtn ? postBtn.innerHTML : '';
     if (postBtn) {
@@ -613,7 +610,7 @@ async function submitPost() {
     }
 
     try {
-        // 1. Upload image
+        // Upload image
         const fileExt = selectedFile.name.split('.').pop();
         const fileName = `${user.id}-${Date.now()}.${fileExt}`;
         const filePath = `posts/${fileName}`;
@@ -625,7 +622,6 @@ async function submitPost() {
 
         if (uploadError) throw uploadError;
 
-        // 2. Get public URL
         const { data: urlData } = supabaseClient
             .storage
             .from('community-images')
@@ -633,7 +629,7 @@ async function submitPost() {
 
         const imageUrl = urlData.publicUrl;
 
-        // 3. Insert post into database
+        // Insert post
         const { error: insertError } = await supabaseClient
             .from('posts')
             .insert({
@@ -646,17 +642,15 @@ async function submitPost() {
 
         if (insertError) throw insertError;
 
-        // Success
         alert("Post created successfully!");
         closeUploadModal();
 
-        // Refresh the posts grid (we'll build this next)
         if (typeof loadCommunityPosts === 'function') {
             loadCommunityPosts();
         }
 
     } catch (error) {
-        console.error("Error creating post:", error);
+        console.error("%c[Post] Error:", "color: #ef4444", error);
         alert("Failed to create post: " + error.message);
     } finally {
         if (postBtn) {
