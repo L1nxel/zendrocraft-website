@@ -315,66 +315,76 @@
         </div>
     </footer>
 
-    <!-- Login Modal -->
-    <div id="loginModal" onclick="if (event.target.id === 'loginModal') hideLoginModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
-        <div onclick="event.stopImmediatePropagation()" class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8">
-            <h2 class="text-2xl font-semibold mb-6">Welcome back</h2>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="text-sm text-slate-400 block mb-1.5">Email or Username</label>
-                    <input type="text" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500" placeholder="you@example.com">
-                </div>
-                <div>
-                    <label class="text-sm text-slate-400 block mb-1.5">Password</label>
-                    <input type="password" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500" placeholder="••••••••">
-                </div>
-                
-                <button class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold mt-2">
-                    Log in
-                </button>
-                
-                <div class="text-center text-sm text-slate-400">
-                    Don't have an account? 
-                    <span onclick="hideLoginModal(); showRegisterModal()" class="text-indigo-400 hover:underline cursor-pointer">Register</span>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Login / Register Modal (Updated - Matches Community Page) -->
+<div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
+        
+        <!-- Close Button -->
+        <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-times text-xl"></i>
+        </button>
 
-    <!-- Register Modal -->
-    <div id="registerModal" onclick="if (event.target.id === 'registerModal') hideRegisterModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
-        <div onclick="event.stopImmediatePropagation()" class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8">
-            <h2 class="text-2xl font-semibold mb-6">Create your account</h2>
-            
+        <!-- Modal Title -->
+        <h2 class="text-2xl font-semibold mb-6" id="modal-title">Login</h2>
+
+        <!-- Login Form -->
+        <div id="login-form">
             <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-sm text-slate-400 block mb-1.5">Username</label>
-                        <input type="text" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500" placeholder="GamerBoi">
-                    </div>
-                    <div>
-                        <label class="text-sm text-slate-400 block mb-1.5">Email</label>
-                        <input type="email" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500" placeholder="you@example.com">
-                    </div>
-                </div>
-                
                 <div>
-                    <label class="text-sm text-slate-400 block mb-1.5">Password</label>
-                    <input type="password" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500" placeholder="••••••••">
+                    <label class="text-sm text-slate-400">Email</label>
+                    <input type="email" id="login-email" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-indigo-500">
                 </div>
-                
-                <button class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold mt-2">
+                <div>
+                    <label class="text-sm text-slate-400">Password</label>
+                    <input type="password" id="login-password" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="loginUser()" 
+                        class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold mt-2">
+                    Log In
+                </button>
+            </div>
+            <p class="text-center text-sm text-slate-400 mt-4">
+                Don't have an account? 
+                <span onclick="switchToRegister()" class="text-indigo-400 hover:underline cursor-pointer">Register here</span>
+            </p>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form" class="hidden">
+            <div class="space-y-4">
+                <!-- Username -->
+                <div>
+                    <label class="text-sm text-slate-400">Username</label>
+                    <input type="text" id="register-username" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-indigo-500"
+                           placeholder="GamerBoi">
+                </div>
+
+                <div>
+                    <label class="text-sm text-slate-400">Email</label>
+                    <input type="email" id="register-email" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Password</label>
+                    <input type="password" id="register-password" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="registerUser()" 
+                        class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold mt-2">
                     Create Account
                 </button>
-                
-                <div class="text-center text-sm text-slate-400">
-                    Already have an account? 
-                    <span onclick="hideRegisterModal(); showLoginModal()" class="text-indigo-400 hover:underline cursor-pointer">Log in</span>
-                </div>
             </div>
+            <p class="text-center text-sm text-slate-400 mt-4">
+                Already have an account? 
+                <span onclick="switchToLogin()" class="text-indigo-400 hover:underline cursor-pointer">Log in here</span>
+            </p>
         </div>
+
     </div>
+</div>
 
     <script>
         function copyServerIP() {
