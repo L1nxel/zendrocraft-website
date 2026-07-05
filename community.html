@@ -10,6 +10,14 @@
     <style>
         body { font-family: 'Inter', system_ui, sans-serif; }
         .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+#post-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#post-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200">
@@ -446,33 +454,46 @@ function updatePostButton(user) {
 
     if (user) {
         // === LOGGED IN USER ===
-        postBtn.className = `flex items-center gap-x-2 px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold transition-all`;
-        postBtnText.textContent = 'Post';
-        postBtn.style.border = '';
-        postBtn.onclick = () => {
-            // You can replace this later with your actual upload modal
-            showUploadModal();
-        };
+        // Matches the style of the big Community box on homepage
+        postBtn.className = `flex items-center gap-x-2 px-6 py-3 bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-3xl font-semibold transition-all`;
 
-        // Clear any previous hover events
+        postBtnText.innerHTML = `
+            <i class="fa-solid fa-plus text-amber-400"></i>
+            <span class="text-amber-400">Post</span>
+        `;
+
+        postBtn.onclick = () => showUploadModal();
+
+        // Clear any previous hover events from logged out state
         postBtn.onmouseenter = null;
         postBtn.onmouseleave = null;
 
     } else {
-        // === LOGGED OUT USER ===
+        // === LOGGED OUT USER (Keep current red hover behavior) ===
         postBtn.className = `flex items-center gap-x-2 px-6 py-3 bg-slate-900 border border-slate-700 hover:border-red-500 rounded-3xl font-semibold transition-all`;
-        postBtnText.textContent = 'Post';
+
+        postBtnText.innerHTML = `
+            <i class="fa-solid fa-plus"></i>
+            <span>Post</span>
+        `;
+
         postBtn.onclick = () => showLoginModal();
 
-        // Hover effect
+        // Hover effect: Change text to red + red border
         postBtn.onmouseenter = () => {
-            postBtnText.textContent = 'Must Login to Post';
-            postBtnText.style.color = '#f87171'; // red-400
+            postBtnText.innerHTML = `
+                <i class="fa-solid fa-lock text-red-400"></i>
+                <span class="text-red-400">Must Login to Post</span>
+            `;
+            postBtn.style.borderColor = '#ef4444';
         };
 
         postBtn.onmouseleave = () => {
-            postBtnText.textContent = 'Post';
-            postBtnText.style.color = '';
+            postBtnText.innerHTML = `
+                <i class="fa-solid fa-plus"></i>
+                <span>Post</span>
+            `;
+            postBtn.style.borderColor = '';
         };
     }
 }
