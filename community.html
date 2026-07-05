@@ -605,7 +605,29 @@ function submitPost() {
 // Initialize image upload when page loads
 window.onload = function() {
     initializeCommunityPage();
-    setupImageUpload(); // ← Add this line
+    setupImageUpload();
+    setupCaptionCounter(); // ← Add this line
+}
+// ==================== CAPTION CHARACTER COUNTER ====================
+function setupCaptionCounter() {
+    const textarea = document.getElementById('post-caption');
+    const counter = document.getElementById('caption-counter');
+
+    if (!textarea || !counter) return;
+
+    textarea.addEventListener('input', () => {
+        const currentLength = textarea.value.length;
+        counter.textContent = `${currentLength} / 300`;
+
+        // Change color when getting close to the limit
+        if (currentLength > 270) {
+            counter.style.color = '#f87171'; // red-400
+        } else if (currentLength > 240) {
+            counter.style.color = '#fbbf24'; // amber-400
+        } else {
+            counter.style.color = '#64748b'; // slate-500
+        }
+    });
 }
     </script>
 <!-- Upload / Create Post Modal -->
@@ -641,13 +663,16 @@ window.onload = function() {
             </div>
         </div>
 
-        <!-- Caption / Comment -->
-        <div class="mb-6">
-            <label class="block text-sm text-slate-400 mb-2">Caption / Comment</label>
-            <textarea id="post-caption" rows="3"
-                      class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500 resize-none"
-                      placeholder="Write something about this screenshot..."></textarea>
-        </div>
+<!-- Caption / Comment -->
+<div class="mb-6">
+    <div class="flex items-center justify-between mb-2">
+        <label class="block text-sm text-slate-400">Caption / Comment</label>
+        <span id="caption-counter" class="text-xs text-slate-500">0 / 300</span>
+    </div>
+    <textarea id="post-caption" rows="3" maxlength="300"
+              class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500 resize-none"
+              placeholder="Write something about this screenshot..."></textarea>
+</div>
 
         <!-- Enable/Disable Settings -->
         <div class="mb-8">
