@@ -6,6 +6,7 @@
     <title>Community • ZendroCraft</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', system_ui, sans-serif; }
         .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
@@ -13,22 +14,61 @@
 </head>
 <body class="bg-slate-950 text-slate-200">
 
-    <!-- Navbar (you can keep your existing one or use this) -->
+    <!-- Navbar (Exact match to homepage) -->
     <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
-        <div class="max-w-screen-xl mx-auto px-8 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
-                <div class="w-9 h-9 bg-indigo-600 rounded-2xl flex items-center justify-center">
-                    <i class="fa-solid fa-cube text-white text-2xl"></i>
+        <div class="max-w-screen-xl mx-auto">
+            <div class="px-8 py-5 flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-cube text-white text-3xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-display text-3xl font-semibold tracking-tighter">ZendroCraft</span>
+                    </div>
                 </div>
-                <span class="font-display text-2xl font-semibold tracking-tighter">ZendroCraft</span>
-            </div>
-            
-            <div class="flex items-center gap-x-4">
-                <!-- Login / Account Button -->
-                <button id="auth-button"
-                        class="px-5 py-2 text-sm font-medium bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-3xl transition-colors">
-                    Login / Register
-                </button>
+
+                <!-- Right side -->
+                <div class="flex items-center gap-x-4">
+                    <!-- Server IP (Clickable to Copy) -->
+                    <div onclick="copyServerIP()" 
+                         class="hidden md:flex items-center gap-x-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-colors rounded-3xl cursor-pointer group">
+                        <div class="flex items-center gap-x-2">
+                            <i class="fa-solid fa-globe text-emerald-400"></i>
+                            <div>
+                                <span class="text-sm text-slate-400">Server IP</span>
+                                <span class="font-mono font-semibold ml-1.5 group-hover:text-emerald-400 transition-colors">ZendroCraft.Com</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
+                    </div>
+
+                    <!-- Account Dropdown -->
+                    <div class="relative group">
+                        <button class="flex items-center gap-x-2 px-5 py-2.5 text-sm font-semibold hover:bg-slate-900 transition-colors rounded-3xl border border-slate-700">
+                            <span>Account</span>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform group-hover:rotate-180"></i>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl py-2 hidden group-hover:block z-50">
+                            <button onclick="showLoginModal()" 
+                                    class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
+                                <i class="fa-solid fa-sign-in-alt w-4"></i>
+                                <span>Log in</span>
+                            </button>
+                            <button onclick="showRegisterModal()" 
+                                    class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
+                                <i class="fa-solid fa-user-plus w-4"></i>
+                                <span>Register</span>
+                            </button>
+                            <div class="border-t border-slate-700 my-1"></div>
+                            <a href="#" class="block px-4 py-2.5 text-sm hover:bg-slate-800 text-slate-400">
+                                <i class="fa-solid fa-question-circle w-4 mr-3"></i> Forgot Password?
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -41,8 +81,9 @@
                 <p class="text-slate-400 mt-2">Share your builds, moments, and adventures with the community.</p>
             </div>
             
-            <!-- Upload Button -->
+            <!-- Upload Button (only visible when logged in) -->
             <button id="upload-btn"
+                    onclick="showUploadModal()"
                     class="hidden items-center gap-x-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold transition-colors">
                 <i class="fa-solid fa-upload"></i>
                 <span>Upload Screenshot</span>
@@ -53,7 +94,7 @@
     <!-- Image Grid -->
     <div class="max-w-screen-xl mx-auto px-8 pb-20">
         <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Posts will be loaded here by JavaScript -->
+            <!-- Posts will be dynamically loaded here by JavaScript -->
             <div class="col-span-full text-center py-12 text-slate-500">
                 Loading community posts...
             </div>
@@ -62,29 +103,194 @@
 
     <!-- Login / Register Modal -->
     <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8">
-            <!-- Modal content will go here -->
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold" id="modal-title">Login</h2>
-                <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-times text-xl"></i>
-                </button>
-            </div>
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
             
+            <!-- Close Button -->
+            <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-times text-xl"></i>
+            </button>
+
+            <!-- Modal Title -->
+            <h2 class="text-2xl font-semibold mb-6" id="modal-title">Login</h2>
+
             <!-- Login Form -->
             <div id="login-form">
-                <!-- We'll add the actual form fields next -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm text-slate-400">Email</label>
+                        <input type="email" id="login-email" 
+                               class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="text-sm text-slate-400">Password</label>
+                        <input type="password" id="login-password" 
+                               class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <button onclick="loginUser()" 
+                            class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold mt-2">
+                        Log In
+                    </button>
+                </div>
+                <p class="text-center text-sm text-slate-400 mt-4">
+                    Don't have an account? 
+                    <span onclick="switchToRegister()" class="text-indigo-400 hover:underline cursor-pointer">Register here</span>
+                </p>
             </div>
-            
-            <!-- Register Form (hidden by default) -->
+
+            <!-- Register Form -->
             <div id="register-form" class="hidden">
-                <!-- We'll add this next -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm text-slate-400">Email</label>
+                        <input type="email" id="register-email" 
+                               class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="text-sm text-slate-400">Password</label>
+                        <input type="password" id="register-password" 
+                               class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <button onclick="registerUser()" 
+                            class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold mt-2">
+                        Create Account
+                    </button>
+                </div>
+                <p class="text-center text-sm text-slate-400 mt-4">
+                    Already have an account? 
+                    <span onclick="switchToLogin()" class="text-indigo-400 hover:underline cursor-pointer">Log in here</span>
+                </p>
             </div>
+
         </div>
     </div>
 
     <script>
-        // We'll add all the JavaScript here in the next steps
+        // ==================== SUPABASE SETUP ====================
+        // We will fill this in during the next steps
+        const SUPABASE_URL = 'https://syixpmhmpyqbxwyjhynj.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_LSMEMfQzOzVrI3CH5lN7fw_QuCo7_'; // ← Replace with your real anon key later
+
+        let supabaseClient = null;
+
+        function initSupabase() {
+            if (SUPABASE_ANON_KEY.includes('YOUR_ANON_KEY_HERE')) {
+                console.log('%c[Supabase] Waiting for anon key to be added...', 'color: orange');
+                return;
+            }
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('%c[Supabase] Client initialized', 'color: #22c55e');
+        }
+
+        // ==================== COPY SERVER IP ====================
+        function copyServerIP() {
+            navigator.clipboard.writeText('ZendroCraft.Com').then(() => {
+                const originalText = event.currentTarget?.innerHTML;
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-3xl text-sm font-medium shadow-lg';
+                toast.textContent = 'Server IP copied to clipboard!';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.transition = 'all 0.3s ease';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            });
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        function showLoginModal() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+            document.getElementById('auth-modal').classList.add('flex');
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('modal-title').textContent = 'Login';
+        }
+
+        function showRegisterModal() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+            document.getElementById('auth-modal').classList.add('flex');
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('modal-title').textContent = 'Create Account';
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function switchToRegister() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('modal-title').textContent = 'Create Account';
+        }
+
+        function switchToLogin() {
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('modal-title').textContent = 'Login';
+        }
+
+        // ==================== AUTH FUNCTIONS (Placeholder for now) ====================
+        async function registerUser() {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            if (!supabaseClient) {
+                alert('Supabase is not connected yet. Please add your anon key first.');
+                return;
+            }
+
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('Account created! Please check your email to confirm (if required).');
+                closeAuthModal();
+            }
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!supabaseClient) {
+                alert('Supabase is not connected yet. Please add your anon key first.');
+                return;
+            }
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('Logged in successfully!');
+                closeAuthModal();
+                // Later we will show the upload button here
+            }
+        }
+
+        // ==================== INITIALIZATION ====================
+        function initializeCommunityPage() {
+            initSupabase();
+            
+            // TODO: Load posts from Supabase here in the next steps
+            console.log('%c[Community] Page initialized. Ready for Supabase connection.', 'color: #64748b');
+        }
+
+        // Start everything when page loads
+        window.onload = function() {
+            initializeCommunityPage();
+        }
     </script>
 
 </body>
