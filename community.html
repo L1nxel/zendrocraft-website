@@ -174,7 +174,7 @@
         let supabaseClient = null;
 
         function initSupabase() {
-            if (SUPABASE_ANON_KEY.includes('YOUR_ANON_KEY_HERE')) {
+            if (SUPABASE_ANON_KEY.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5aXB4bWhtcHlxYnh3amh5amhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTg0OTAsImV4cCI6MjA5ODc3NDQ5MH0.38rPtmkqSSSozJeRqP4eF8MK3vKitzcPULzFyeBlbms')) {
                 console.log('%c[Supabase] Waiting for anon key...', 'color: orange');
                 return;
             }
