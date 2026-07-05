@@ -14,7 +14,7 @@
 </head>
 <body class="bg-slate-950 text-slate-200">
 
-    <!-- Navbar (Exact match to homepage) -->
+    <!-- Navbar (Exact match to homepage + Fixed Dropdown) -->
     <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
         <div class="max-w-screen-xl mx-auto">
             <div class="px-8 py-5 flex items-center justify-between">
@@ -43,26 +43,32 @@
                         <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
                     </div>
 
-                    <!-- Account Dropdown -->
-                    <div class="relative group">
-                        <button class="flex items-center gap-x-2 px-5 py-2.5 text-sm font-semibold hover:bg-slate-900 transition-colors rounded-3xl border border-slate-700">
+                    <!-- Account Dropdown (Click to Open - Fixed) -->
+                    <div class="relative">
+                        <button onclick="toggleAccountDropdown(event)"
+                                class="flex items-center gap-x-2 px-5 py-2.5 text-sm font-semibold hover:bg-slate-900 transition-colors rounded-3xl border border-slate-700">
                             <span>Account</span>
-                            <i class="fa-solid fa-chevron-down text-xs transition-transform group-hover:rotate-180"></i>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform" id="chevron-icon"></i>
                         </button>
                         
                         <!-- Dropdown Menu -->
-                        <div class="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl py-2 hidden group-hover:block z-50">
-                            <button onclick="showLoginModal()" 
+                        <div id="account-dropdown" 
+                             class="hidden absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl py-2 z-50">
+                            
+                            <button onclick="showLoginModal(); hideAccountDropdown();"
                                     class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
                                 <i class="fa-solid fa-sign-in-alt w-4"></i>
                                 <span>Log in</span>
                             </button>
-                            <button onclick="showRegisterModal()" 
+                            
+                            <button onclick="showRegisterModal(); hideAccountDropdown();"
                                     class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
                                 <i class="fa-solid fa-user-plus w-4"></i>
                                 <span>Register</span>
                             </button>
+                            
                             <div class="border-t border-slate-700 my-1"></div>
+                            
                             <a href="#" class="block px-4 py-2.5 text-sm hover:bg-slate-800 text-slate-400">
                                 <i class="fa-solid fa-question-circle w-4 mr-3"></i> Forgot Password?
                             </a>
@@ -94,7 +100,6 @@
     <!-- Image Grid -->
     <div class="max-w-screen-xl mx-auto px-8 pb-20">
         <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Posts will be dynamically loaded here by JavaScript -->
             <div class="col-span-full text-center py-12 text-slate-500">
                 Loading community posts...
             </div>
@@ -105,12 +110,10 @@
     <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
             
-            <!-- Close Button -->
             <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
                 <i class="fa-solid fa-times text-xl"></i>
             </button>
 
-            <!-- Modal Title -->
             <h2 class="text-2xl font-semibold mb-6" id="modal-title">Login</h2>
 
             <!-- Login Form -->
@@ -160,33 +163,63 @@
                     <span onclick="switchToLogin()" class="text-indigo-400 hover:underline cursor-pointer">Log in here</span>
                 </p>
             </div>
-
         </div>
     </div>
 
     <script>
         // ==================== SUPABASE SETUP ====================
-        // We will fill this in during the next steps
         const SUPABASE_URL = 'https://syixpmhmpyqbxwyjhynj.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_LSMEMfQzOzVrI3CH5lN7fw_QuCo7_'; // ← Replace with your real anon key later
+        const SUPABASE_ANON_KEY = 'sb_publishable_LSMEMfQzOzVrI3CH5lN7fw_QuCo7_'; // ← Replace with your real anon key
 
         let supabaseClient = null;
 
         function initSupabase() {
             if (SUPABASE_ANON_KEY.includes('YOUR_ANON_KEY_HERE')) {
-                console.log('%c[Supabase] Waiting for anon key to be added...', 'color: orange');
+                console.log('%c[Supabase] Waiting for anon key...', 'color: orange');
                 return;
             }
             supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log('%c[Supabase] Client initialized', 'color: #22c55e');
         }
 
+        // ==================== DROPDOWN FUNCTIONS (Fixed) ====================
+        function toggleAccountDropdown(event) {
+            event.stopImmediatePropagation();
+            const dropdown = document.getElementById('account-dropdown');
+            const chevron = document.getElementById('chevron-icon');
+
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        function hideAccountDropdown() {
+            const dropdown = document.getElementById('account-dropdown');
+            const chevron = document.getElementById('chevron-icon');
+            dropdown.classList.add('hidden');
+            chevron.classList.remove('rotate-180');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('account-dropdown');
+            const button = event.target.closest('button');
+            
+            if (!dropdown.contains(event.target) && !button?.textContent.includes('Account')) {
+                dropdown.classList.add('hidden');
+                document.getElementById('chevron-icon').classList.remove('rotate-180');
+            }
+        });
+
         // ==================== COPY SERVER IP ====================
         function copyServerIP() {
             navigator.clipboard.writeText('ZendroCraft.Com').then(() => {
-                const originalText = event.currentTarget?.innerHTML;
                 const toast = document.createElement('div');
-                toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-3xl text-sm font-medium shadow-lg';
+                toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-3xl text-sm font-medium shadow-lg z-[200]';
                 toast.textContent = 'Server IP copied to clipboard!';
                 document.body.appendChild(toast);
                 
@@ -233,25 +266,22 @@
             document.getElementById('modal-title').textContent = 'Login';
         }
 
-        // ==================== AUTH FUNCTIONS (Placeholder for now) ====================
+        // ==================== AUTH FUNCTIONS ====================
         async function registerUser() {
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
 
             if (!supabaseClient) {
-                alert('Supabase is not connected yet. Please add your anon key first.');
+                alert('Supabase is not connected yet.');
                 return;
             }
 
-            const { data, error } = await supabaseClient.auth.signUp({
-                email: email,
-                password: password
-            });
+            const { error } = await supabaseClient.auth.signUp({ email, password });
 
             if (error) {
                 alert('Error: ' + error.message);
             } else {
-                alert('Account created! Please check your email to confirm (if required).');
+                alert('Account created! You can now log in.');
                 closeAuthModal();
             }
         }
@@ -261,33 +291,27 @@
             const password = document.getElementById('login-password').value;
 
             if (!supabaseClient) {
-                alert('Supabase is not connected yet. Please add your anon key first.');
+                alert('Supabase is not connected yet.');
                 return;
             }
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
             if (error) {
                 alert('Error: ' + error.message);
             } else {
                 alert('Logged in successfully!');
                 closeAuthModal();
-                // Later we will show the upload button here
+                // Later: Show upload button + load posts
             }
         }
 
         // ==================== INITIALIZATION ====================
         function initializeCommunityPage() {
             initSupabase();
-            
-            // TODO: Load posts from Supabase here in the next steps
-            console.log('%c[Community] Page initialized. Ready for Supabase connection.', 'color: #64748b');
+            console.log('%c[Community] Page initialized.', 'color: #64748b');
         }
 
-        // Start everything when page loads
         window.onload = function() {
             initializeCommunityPage();
         }
