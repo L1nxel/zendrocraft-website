@@ -70,7 +70,6 @@
 <!-- Post Button -->
 <button id="post-btn"
         class="flex items-center gap-x-2 px-6 py-3 rounded-3xl font-semibold transition-all">
-    <i class="fa-solid fa-plus"></i>
     <span id="post-btn-text">Post</span>
 </button>
         </div>
@@ -454,22 +453,21 @@ function updatePostButton(user) {
 
     if (user) {
         // === LOGGED IN USER ===
-        // Matches the style of the big Community box on homepage
         postBtn.className = `flex items-center gap-x-2 px-6 py-3 bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-3xl font-semibold transition-all`;
 
         postBtnText.innerHTML = `
             <i class="fa-solid fa-plus text-amber-400"></i>
-            <span class="text-amber-400">Post</span>
+            <span class="text-white">Post</span>
         `;
 
         postBtn.onclick = () => showUploadModal();
 
-        // Clear any previous hover events from logged out state
+        // Clear hover events from logged out state
         postBtn.onmouseenter = null;
         postBtn.onmouseleave = null;
 
     } else {
-        // === LOGGED OUT USER (Keep current red hover behavior) ===
+        // === LOGGED OUT USER ===
         postBtn.className = `flex items-center gap-x-2 px-6 py-3 bg-slate-900 border border-slate-700 hover:border-red-500 rounded-3xl font-semibold transition-all`;
 
         postBtnText.innerHTML = `
@@ -479,7 +477,7 @@ function updatePostButton(user) {
 
         postBtn.onclick = () => showLoginModal();
 
-        // Hover effect: Change text to red + red border
+        // Hover effect
         postBtn.onmouseenter = () => {
             postBtnText.innerHTML = `
                 <i class="fa-solid fa-lock text-red-400"></i>
