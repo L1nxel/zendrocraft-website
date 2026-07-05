@@ -486,6 +486,41 @@
         window.onload = function() {
             initializeTailwind();
         }
+        // ==================== FIXED ACCOUNT DROPDOWN (Click version) ====================
+        function toggleAccountDropdown(event) {
+            event.stopImmediatePropagation();
+            const dropdown = document.getElementById('account-dropdown');
+            const chevron = document.getElementById('chevron-icon');
+
+            if (!dropdown) return;
+
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                if (chevron) chevron.classList.add('rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                if (chevron) chevron.classList.remove('rotate-180');
+            }
+        }
+
+        function hideAccountDropdown() {
+            const dropdown = document.getElementById('account-dropdown');
+            const chevron = document.getElementById('chevron-icon');
+            if (dropdown) dropdown.classList.add('hidden');
+            if (chevron) chevron.classList.remove('rotate-180');
+        }
+
+        // Close dropdown when clicking anywhere outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('account-dropdown');
+            const button = event.target.closest('button');
+
+            if (dropdown && !dropdown.contains(event.target) && (!button || !button.textContent.includes('Account'))) {
+                dropdown.classList.add('hidden');
+                const chevron = document.getElementById('chevron-icon');
+                if (chevron) chevron.classList.remove('rotate-180');
+            }
+        });
 </script>
 </body>
 </html>
