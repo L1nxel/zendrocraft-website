@@ -591,17 +591,19 @@ async function submitPost() {
         return;
     }
 
-    // Get fresh user data
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // === Get the current logged in user (more reliable method) ===
+    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
-    if (userError || !user) {
-        alert("You must be logged in to post.");
+    if (sessionError || !session || !session.user) {
+        alert("You must be logged in to post. Please try logging in again.");
         closeUploadModal();
         showLoginModal();
         return;
     }
 
-    // Find the Post button and show loading state
+    const userId = session.user.id;
+
+    // Show loading state on the button
     const postBtn = document.querySelector('#upload-modal button[onclick*="submitPost"]');
     const originalText = postBtn ? postBtn.innerHTML : '';
     if (postBtn) {
@@ -612,7 +614,7 @@ async function submitPost() {
     try {
         // 1. Upload image to Supabase Storage
         const fileExt = selectedFile.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const fileName = `${userId}-${Date.now()}.${fileExt}`;
         const filePath = `posts/${fileName}`;
 
         const { error: uploadError } = await supabaseClient
@@ -630,11 +632,11 @@ async function submitPost() {
 
         const imageUrl = urlData.publicUrl;
 
-        // 3. Insert post into database
+        // 3. Insert the post into the database
         const { error: insertError } = await supabaseClient
             .from('posts')
             .insert({
-                user_id: user.id,
+                user_id: userId,
                 image_url: imageUrl,
                 caption: caption || null,
                 allow_likes: allowLikes,
@@ -647,7 +649,7 @@ async function submitPost() {
         alert("Post created successfully!");
         closeUploadModal();
 
-        // Refresh posts on the page (we'll build this soon)
+        // Refresh the posts grid (we'll build this next)
         if (typeof loadCommunityPosts === 'function') {
             loadCommunityPosts();
         }
@@ -656,7 +658,7 @@ async function submitPost() {
         console.error("Error creating post:", error);
         alert("Failed to create post: " + error.message);
     } finally {
-        // Reset button state
+        // Reset button
         if (postBtn) {
             postBtn.disabled = false;
             postBtn.innerHTML = originalText || 'Post';
