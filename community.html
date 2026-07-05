@@ -496,7 +496,203 @@ function updatePostButton(user) {
         };
     }
 }
-    </script>
+// ==================== UPLOAD MODAL ====================
+function showUploadModal() {
+    document.getElementById('upload-modal').classList.remove('hidden');
+    document.getElementById('upload-modal').classList.add('flex');
+}
 
+function closeUploadModal() {
+    document.getElementById('upload-modal').classList.remove('flex');
+    document.getElementById('upload-modal').classList.add('hidden');
+    resetUploadForm();
+}
+
+// Image preview logic
+let selectedFile = null;
+
+function setupImageUpload() {
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('image-input');
+    const previewContainer = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+
+    // Click to browse
+    dropZone.onclick = () => fileInput.click();
+
+    // File selected
+    fileInput.onchange = (e) => {
+        if (e.target.files.length > 0) {
+            handleImageFile(e.target.files[0]);
+        }
+    };
+
+    // Drag & Drop
+    dropZone.ondragover = (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-amber-500');
+    };
+
+    dropZone.ondragleave = () => {
+        dropZone.classList.remove('border-amber-500');
+    };
+
+    dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-amber-500');
+        if (e.dataTransfer.files.length > 0) {
+            handleImageFile(e.dataTransfer.files[0]);
+        }
+    };
+}
+
+function handleImageFile(file) {
+    if (!file.type.startsWith('image/')) {
+        alert('Please upload an image file.');
+        return;
+    }
+
+    selectedFile = file;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('preview-img').src = e.target.result;
+        document.getElementById('drop-zone').classList.add('hidden');
+        document.getElementById('image-preview').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeSelectedImage() {
+    selectedFile = null;
+    document.getElementById('drop-zone').classList.remove('hidden');
+    document.getElementById('image-preview').classList.add('hidden');
+    document.getElementById('image-input').value = '';
+}
+
+function resetUploadForm() {
+    selectedFile = null;
+    document.getElementById('drop-zone').classList.remove('hidden');
+    document.getElementById('image-preview').classList.add('hidden');
+    document.getElementById('post-caption').value = '';
+    document.getElementById('image-input').value = '';
+    document.getElementById('allow-likes').checked = true;
+    document.getElementById('allow-comments').checked = true;
+}
+
+// Placeholder for actual post submission (we'll build this later)
+function submitPost() {
+    const caption = document.getElementById('post-caption').value.trim();
+    const allowLikes = document.getElementById('allow-likes').checked;
+    const allowComments = document.getElementById('allow-comments').checked;
+
+    if (!selectedFile) {
+        alert('Please upload a screenshot.');
+        return;
+    }
+
+    console.log('Submitting post...');
+    console.log('Caption:', caption);
+    console.log('Allow Likes:', allowLikes);
+    console.log('Allow Comments:', allowComments);
+    console.log('File:', selectedFile);
+
+    // For now, just close the modal
+    alert('Post submitted! (This is a placeholder. We will connect it to Supabase next.)');
+    closeUploadModal();
+}
+
+// Initialize image upload when page loads
+window.onload = function() {
+    initializeCommunityPage();
+    setupImageUpload(); // ← Add this line
+}
+    </script>
+<!-- Upload / Create Post Modal -->
+<div id="upload-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-lg p-8 relative">
+        
+        <!-- Close Button -->
+        <button onclick="closeUploadModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-times text-xl"></i>
+        </button>
+
+        <h2 class="text-2xl font-semibold mb-6">Create Post</h2>
+
+        <!-- Image Upload Area -->
+        <div class="mb-6">
+            <label class="block text-sm text-slate-400 mb-2">Screenshot</label>
+            <div id="drop-zone"
+                 class="border-2 border-dashed border-slate-700 hover:border-amber-500/50 rounded-2xl p-8 text-center cursor-pointer transition-colors">
+                <i class="fa-solid fa-image text-4xl text-slate-500 mb-3"></i>
+                <p class="text-slate-400">Drag & drop your screenshot here</p>
+                <p class="text-xs text-slate-500 mt-1">or click to browse</p>
+                <input type="file" id="image-input" accept="image/*" class="hidden">
+            </div>
+            
+            <!-- Image Preview -->
+            <div id="image-preview" class="hidden mt-4">
+                <img id="preview-img" class="max-h-64 rounded-2xl mx-auto border border-slate-700">
+                <button onclick="removeSelectedImage()" 
+                        class="mt-2 text-sm text-red-400 hover:text-red-300 flex items-center gap-x-1 mx-auto">
+                    <i class="fa-solid fa-trash"></i>
+                    <span>Remove Image</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Caption / Comment -->
+        <div class="mb-6">
+            <label class="block text-sm text-slate-400 mb-2">Caption / Comment</label>
+            <textarea id="post-caption" rows="3"
+                      class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500 resize-none"
+                      placeholder="Write something about this screenshot..."></textarea>
+        </div>
+
+        <!-- Enable/Disable Settings -->
+        <div class="mb-8">
+            <label class="block text-sm text-slate-400 mb-3">Post Settings</label>
+            
+            <div class="space-y-3">
+                <!-- Allow Likes -->
+                <div class="flex items-center justify-between bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3">
+                    <div class="flex items-center gap-x-3">
+                        <i class="fa-solid fa-heart text-amber-400"></i>
+                        <span>Allow Likes</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="allow-likes" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                    </label>
+                </div>
+
+                <!-- Allow Comments -->
+                <div class="flex items-center justify-between bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3">
+                    <div class="flex items-center gap-x-3">
+                        <i class="fa-solid fa-comment text-amber-400"></i>
+                        <span>Allow Comments</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="allow-comments" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-x-3">
+            <button onclick="closeUploadModal()"
+                    class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold transition-colors">
+                Cancel
+            </button>
+            <button onclick="submitPost()"
+                    class="flex-1 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold transition-colors">
+                Post
+            </button>
+        </div>
+
+    </div>
+</div>
 </body>
 </html>
