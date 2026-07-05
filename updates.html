@@ -213,6 +213,37 @@
             updateNavbar();
         }, 400);
     }
+function toggleLoggedOutDropdown(event) {
+    event.stopImmediatePropagation();
+    const dropdown = document.getElementById('loggedout-dropdown');
+    const chevron = document.getElementById('loggedout-chevron');
+
+    if (dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+    } else {
+        dropdown.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180');
+    }
+}
+
+function hideLoggedOutDropdown() {
+    const dropdown = document.getElementById('loggedout-dropdown');
+    const chevron = document.getElementById('loggedout-chevron');
+    if (dropdown) dropdown.classList.add('hidden');
+    if (chevron) chevron.classList.remove('rotate-180');
+}
+function handleLoginClick() {
+    hideLoggedOutDropdown();
+    // For now, redirect to Community page to log in
+    window.location.href = 'community.html';
+}
+
+function handleRegisterClick() {
+    hideLoggedOutDropdown();
+    // For now, redirect to Community page to register
+    window.location.href = 'community.html';
+}
 </script>
 </body>
 </html>
