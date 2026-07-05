@@ -14,47 +14,43 @@
 </head>
 <body class="bg-slate-950 text-slate-200">
 
-    <!-- Navbar (Exact match to homepage + Fixed Dropdown) -->
-    <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
-        <div class="max-w-screen-xl mx-auto">
-            <div class="px-8 py-5 flex items-center justify-between">
-                <!-- Logo -->
-                <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
-                    <div class="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center">
-                        <i class="fa-solid fa-cube text-white text-3xl"></i>
-                    </div>
-                    <div>
-                        <span class="font-display text-3xl font-semibold tracking-tighter">ZendroCraft</span>
-                    </div>
+<!-- Navbar -->
+<nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
+    <div class="max-w-screen-xl mx-auto">
+        <div class="px-8 py-5 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
+                <div class="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-cube text-white text-3xl"></i>
                 </div>
+                <span class="font-display text-3xl font-semibold tracking-tighter">ZendroCraft</span>
+            </div>
 
-                <!-- Right side -->
-                <div class="flex items-center gap-x-4">
-                    <!-- Server IP (Clickable to Copy) -->
-                    <div onclick="copyServerIP()" 
-                         class="hidden md:flex items-center gap-x-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-colors rounded-3xl cursor-pointer group">
-                        <div class="flex items-center gap-x-2">
-                            <i class="fa-solid fa-globe text-emerald-400"></i>
-                            <div>
-                                <span class="text-sm text-slate-400">Server IP</span>
-                                <span class="font-mono font-semibold ml-1.5 group-hover:text-emerald-400 transition-colors">ZendroCraft.Com</span>
-                            </div>
+            <!-- Right Side -->
+            <div class="flex items-center gap-x-4">
+
+                <!-- Server IP (Copy Play.ZendroCraft.Com) -->
+                <div onclick="copyServerIP()" 
+                     class="hidden md:flex items-center gap-x-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-colors rounded-3xl cursor-pointer group">
+                    <div class="flex items-center gap-x-2">
+                        <i class="fa-solid fa-globe text-emerald-400"></i>
+                        <div>
+                            <span class="text-sm text-slate-400">Server IP</span>
+                            <span class="font-mono font-semibold ml-1.5 group-hover:text-emerald-400 transition-colors">Play.ZendroCraft.Com</span>
                         </div>
-                        <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
                     </div>
-
-                    <!-- Dynamic Account / User Button -->
-                    <div class="relative" id="nav-auth-section">
-                        <!-- This content will be replaced by JavaScript -->
-                        <button onclick="showLoginModal()"
-                                class="flex items-center gap-x-2 px-5 py-2.5 text-sm font-semibold hover:bg-slate-900 transition-colors rounded-3xl border border-slate-700">
-                            <span>Login / Register</span>
-                        </button>
-                    </div>
+                    <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
                 </div>
+
+                <!-- Dynamic Auth Section -->
+                <div class="relative" id="nav-auth-section">
+                    <!-- Content controlled by JavaScript -->
+                </div>
+
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- Page Header -->
     <div class="max-w-screen-xl mx-auto px-8 pt-12 pb-8">
@@ -206,20 +202,20 @@
         });
 
         // ==================== COPY SERVER IP ====================
-        function copyServerIP() {
-            navigator.clipboard.writeText('ZendroCraft.Com').then(() => {
-                const toast = document.createElement('div');
-                toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-3xl text-sm font-medium shadow-lg z-[200]';
-                toast.textContent = 'Server IP copied to clipboard!';
-                document.body.appendChild(toast);
-                
-                setTimeout(() => {
-                    toast.style.transition = 'all 0.3s ease';
-                    toast.style.opacity = '0';
-                    setTimeout(() => toast.remove(), 300);
-                }, 2000);
-            });
-        }
+function copyServerIP() {
+    navigator.clipboard.writeText('Play.ZendroCraft.Com').then(() => {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-3xl text-sm font-medium shadow-lg z-[200]';
+        toast.innerHTML = `<i class="fa-solid fa-check mr-2"></i> <span>IP copied to clipboard!</span>`;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.transition = 'all 0.3s ease';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    });
+}
 
         // ==================== MODAL FUNCTIONS ====================
         function showLoginModal() {
