@@ -268,41 +268,65 @@
 
         // ==================== AUTH FUNCTIONS ====================
         async function registerUser() {
-            const email = document.getElementById('register-email').value;
+            const email = document.getElementById('register-email').value.trim();
             const password = document.getElementById('register-password').value;
 
-            if (!supabaseClient) {
-                alert('Supabase is not connected yet.');
+            if (!email || !password) {
+                alert('Please enter both email and password.');
                 return;
             }
 
-            const { error } = await supabaseClient.auth.signUp({ email, password });
+            if (!supabaseClient) {
+                alert('Supabase client not initialized. Check your anon key.');
+                console.error('supabaseClient is null');
+                return;
+            }
+
+            console.log('Attempting to register...');
+
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password
+            });
 
             if (error) {
+                console.error('Supabase register error:', error);
                 alert('Error: ' + error.message);
             } else {
+                console.log('Register success:', data);
                 alert('Account created! You can now log in.');
                 closeAuthModal();
             }
         }
 
         async function loginUser() {
-            const email = document.getElementById('login-email').value;
+            const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
 
-            if (!supabaseClient) {
-                alert('Supabase is not connected yet.');
+            if (!email || !password) {
+                alert('Please enter both email and password.');
                 return;
             }
 
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (!supabaseClient) {
+                alert('Supabase client not initialized. Check your anon key.');
+                return;
+            }
+
+            console.log('Attempting to login...');
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
 
             if (error) {
+                console.error('Supabase login error:', error);
                 alert('Error: ' + error.message);
             } else {
+                console.log('Login success:', data);
                 alert('Logged in successfully!');
                 closeAuthModal();
-                // Later: Show upload button + load posts
             }
         }
 
