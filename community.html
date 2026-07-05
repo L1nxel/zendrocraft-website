@@ -591,7 +591,10 @@ async function submitPost() {
         return;
     }
 
-    if (!currentUser) {
+    // === Get fresh user data (most important fix) ===
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
         alert("You must be logged in to post.");
         closeUploadModal();
         showLoginModal();
@@ -606,7 +609,7 @@ async function submitPost() {
     try {
         // 1. Upload image to Supabase Storage
         const fileExt = selectedFile.name.split('.').pop();
-        const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
         const filePath = `posts/${fileName}`;
 
         const { error: uploadError } = await supabaseClient
@@ -628,7 +631,7 @@ async function submitPost() {
         const { error: insertError } = await supabaseClient
             .from('posts')
             .insert({
-                user_id: currentUser.id,
+                user_id: user.id,
                 image_url: imageUrl,
                 caption: caption || null,
                 allow_likes: allowLikes,
@@ -641,7 +644,7 @@ async function submitPost() {
         alert("Post created successfully!");
         closeUploadModal();
 
-        // Refresh the posts on the page (we'll build this next)
+        // Refresh posts on the page
         if (typeof loadCommunityPosts === 'function') {
             loadCommunityPosts();
         }
