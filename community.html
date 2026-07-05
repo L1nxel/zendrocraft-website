@@ -59,12 +59,12 @@
             </div>
             
             <!-- Upload Button (only visible when logged in) -->
-            <button id="upload-btn"
-                    onclick="showUploadModal()"
-                    class="hidden items-center gap-x-2 px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold transition-colors">
-                <i class="fa-solid fa-upload"></i>
-                <span>Upload Screenshot</span>
-            </button>
+<!-- Post Button -->
+<button id="post-btn"
+        class="flex items-center gap-x-2 px-6 py-3 rounded-3xl font-semibold transition-all">
+    <i class="fa-solid fa-plus"></i>
+    <span id="post-btn-text">Post</span>
+</button>
         </div>
     </div>
 
@@ -365,6 +365,7 @@ function copyServerIP() {
                     </div>
                 `;
             }
+updatePostButton(user);
         }
         function toggleLoggedOutDropdown(event) {
             event.stopImmediatePropagation();
@@ -423,6 +424,11 @@ function initializeCommunityPage() {
     setTimeout(() => {
         updateNavbar();
         setupAuthListener();
+
+        // Also update the Post button on initial load
+        supabaseClient.auth.getUser().then(({ data: { user } }) => {
+            updatePostButton(user);
+        });
     }, 400);
 
     console.log('%c[Community] Page initialized.', 'color: #64748b');
@@ -431,6 +437,45 @@ function initializeCommunityPage() {
         window.onload = function() {
             initializeCommunityPage();
         }
+// ==================== DYNAMIC POST BUTTON ====================
+function updatePostButton(user) {
+    const postBtn = document.getElementById('post-btn');
+    const postBtnText = document.getElementById('post-btn-text');
+
+    if (!postBtn || !postBtnText) return;
+
+    if (user) {
+        // === LOGGED IN USER ===
+        postBtn.className = `flex items-center gap-x-2 px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold transition-all`;
+        postBtnText.textContent = 'Post';
+        postBtn.style.border = '';
+        postBtn.onclick = () => {
+            // You can replace this later with your actual upload modal
+            showUploadModal();
+        };
+
+        // Clear any previous hover events
+        postBtn.onmouseenter = null;
+        postBtn.onmouseleave = null;
+
+    } else {
+        // === LOGGED OUT USER ===
+        postBtn.className = `flex items-center gap-x-2 px-6 py-3 bg-slate-900 border border-slate-700 hover:border-red-500 rounded-3xl font-semibold transition-all`;
+        postBtnText.textContent = 'Post';
+        postBtn.onclick = () => showLoginModal();
+
+        // Hover effect
+        postBtn.onmouseenter = () => {
+            postBtnText.textContent = 'Must Login to Post';
+            postBtnText.style.color = '#f87171'; // red-400
+        };
+
+        postBtn.onmouseleave = () => {
+            postBtnText.textContent = 'Post';
+            postBtnText.style.color = '';
+        };
+    }
+}
     </script>
 
 </body>
