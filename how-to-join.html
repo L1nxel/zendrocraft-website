@@ -263,11 +263,17 @@ function handleRegisterClick() {
     // For now, redirect to Community page to register
     window.location.href = 'community.html';
 }
-// ==================== LOGGED OUT DROPDOWN ====================
+// ==================== LOGGED OUT DROPDOWN (Reliable Version) ====================
 function toggleLoggedOutDropdown(event) {
     event.stopImmediatePropagation();
+    
     const dropdown = document.getElementById('loggedout-dropdown');
     const chevron = document.getElementById('loggedout-chevron');
+
+    if (!dropdown) {
+        console.error("ERROR: loggedout-dropdown element not found!");
+        return;
+    }
 
     if (dropdown.classList.contains('hidden')) {
         dropdown.classList.remove('hidden');
@@ -278,20 +284,15 @@ function toggleLoggedOutDropdown(event) {
     }
 }
 
-function hideLoggedOutDropdown() {
-    const dropdown = document.getElementById('loggedout-dropdown');
-    const chevron = document.getElementById('loggedout-chevron');
-    if (dropdown) dropdown.classList.add('hidden');
-    if (chevron) chevron.classList.remove('rotate-180');
-}
-
 function handleLoginClick() {
-    hideLoggedOutDropdown();
+    const dropdown = document.getElementById('loggedout-dropdown');
+    if (dropdown) dropdown.classList.add('hidden');
     window.location.href = 'community.html';
 }
 
 function handleRegisterClick() {
-    hideLoggedOutDropdown();
+    const dropdown = document.getElementById('loggedout-dropdown');
+    if (dropdown) dropdown.classList.add('hidden');
     window.location.href = 'community.html';
 }
 </script>
