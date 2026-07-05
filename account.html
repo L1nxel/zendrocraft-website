@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings • ZendroCraft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+
+    <!-- Navbar -->
+    <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
+        <div class="max-w-screen-xl mx-auto">
+            <div class="px-8 py-5 flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-cube text-white text-3xl"></i>
+                    </div>
+                    <span class="font-display text-3xl font-semibold tracking-tighter">ZendroCraft</span>
+                </div>
+
+                <!-- Dynamic Auth Section -->
+                <div class="relative" id="nav-auth-section">
+                    <button onclick="showLoginModal()"
+                            class="flex items-center gap-x-2 px-5 py-2.5 text-sm font-semibold hover:bg-slate-900 transition-colors rounded-3xl border border-slate-700">
+                        <span>Login / Register</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="max-w-screen-md mx-auto px-8 pt-12 pb-20">
+        <div class="mb-10">
+            <h1 class="font-display text-5xl font-semibold tracking-tighter">Account Settings</h1>
+            <p class="text-slate-400 mt-2">Manage your profile and security settings.</p>
+        </div>
+
+        <!-- Username Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-xl font-semibold">Username</h3>
+                    <p id="current-username" class="text-2xl font-semibold text-emerald-400 mt-1">Loading...</p>
+                </div>
+                <button onclick="editUsername()" 
+                        class="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
+                    <i class="fa-solid fa-edit mr-2"></i> Edit
+                </button>
+            </div>
+        </div>
+
+        <!-- Email Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-xl font-semibold">Email Address</h3>
+                    <p id="current-email" class="text-lg text-slate-300 mt-1">Loading...</p>
+                </div>
+                <button onclick="editEmail()" 
+                        class="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
+                    <i class="fa-solid fa-edit mr-2"></i> Edit
+                </button>
+            </div>
+        </div>
+
+        <!-- Password Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-semibold">Password</h3>
+                    <p class="text-slate-400 mt-1">Change your account password</p>
+                </div>
+                <button onclick="editPassword()" 
+                        class="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
+                    <i class="fa-solid fa-key mr-2"></i> Change Password
+                </button>
+            </div>
+        </div>
+
+        <!-- Logout Button -->
+        <div class="text-center">
+            <button onclick="logoutUser()" 
+                    class="px-8 py-3 text-red-400 hover:text-red-300 font-semibold flex items-center gap-x-2 mx-auto">
+                <i class="fa-solid fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== SUPABASE SETUP ====================
+        const SUPABASE_URL = 'https://syipxmhmpyqbxwjhyjhn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5aXB4bWhtcHlxYnh3amh5amhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTg0OTAsImV4cCI6MjA5ODc3NDQ5MH0.38rPtmkqSSSozJeRqP4eF8MK3vKitzcPULzFyeBlbms'; // ← Paste your real key
+
+        let supabaseClient = null;
+        let currentUser = null;
+
+        function initSupabase() {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        async function loadUserData() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = user;
+
+            // Display Username
+            const username = user.user_metadata?.username || user.email.split('@')[0];
+            document.getElementById('current-username').textContent = username;
+
+            // Display Email
+            document.getElementById('current-email').textContent = user.email;
+        }
+
+        async function editUsername() {
+            const newUsername = prompt("Enter your new username:");
+            if (!newUsername || newUsername.length < 3) return;
+
+            const { error } = await supabaseClient.auth.updateUser({
+                data: { username: newUsername }
+            });
+
+            if (error) {
+                alert('Error updating username: ' + error.message);
+            } else {
+                alert('Username updated successfully!');
+                document.getElementById('current-username').textContent = newUsername;
+            }
+        }
+
+        async function editEmail() {
+            const newEmail = prompt("Enter your new email address:");
+            if (!newEmail) return;
+
+            const { error } = await supabaseClient.auth.updateUser({ email: newEmail });
+
+            if (error) {
+                alert('Error updating email: ' + error.message);
+            } else {
+                alert('A confirmation email has been sent to your new address. Please verify it.');
+            }
+        }
+
+        async function editPassword() {
+            const newPassword = prompt("Enter your new password (minimum 6 characters):");
+            if (!newPassword || newPassword.length < 6) {
+                alert("Password must be at least 6 characters.");
+                return;
+            }
+
+            const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+
+            if (error) {
+                alert('Error updating password: ' + error.message);
+            } else {
+                alert('Password updated successfully!');
+            }
+        }
+
+        async function logoutUser() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        // Initialize page
+        window.onload = function() {
+            initSupabase();
+            loadUserData();
+        }
+    </script>
+
+</body>
+</html>
