@@ -168,27 +168,6 @@
             }
         }
 
-        // ==================== DROPDOWN FUNCTIONS (Fixed) ====================
-        function toggleAccountDropdown(event) {
-            event.stopImmediatePropagation();
-            const dropdown = document.getElementById('account-dropdown');
-            const chevron = document.getElementById('chevron-icon');
-
-            if (dropdown.classList.contains('hidden')) {
-                dropdown.classList.remove('hidden');
-                chevron.classList.add('rotate-180');
-            } else {
-                dropdown.classList.add('hidden');
-                chevron.classList.remove('rotate-180');
-            }
-        }
-
-        function hideAccountDropdown() {
-            const dropdown = document.getElementById('account-dropdown');
-            const chevron = document.getElementById('chevron-icon');
-            dropdown.classList.add('hidden');
-            chevron.classList.remove('rotate-180');
-        }
 
         // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
