@@ -462,7 +462,7 @@ function updatePostButton(user) {
 
         postBtn.onclick = () => showUploadModal();
 
-        // Clear hover events from logged out state
+        // Clear any previous hover events
         postBtn.onmouseenter = null;
         postBtn.onmouseleave = null;
 
@@ -470,8 +470,9 @@ function updatePostButton(user) {
         // === LOGGED OUT USER ===
         postBtn.className = `flex items-center gap-x-2 px-6 py-3 bg-slate-900 border border-slate-700 hover:border-red-500 rounded-3xl font-semibold transition-all`;
 
+        // Default state: Lock icon + "Post"
         postBtnText.innerHTML = `
-            <i class="fa-solid fa-plus"></i>
+            <i class="fa-solid fa-lock"></i>
             <span>Post</span>
         `;
 
@@ -488,7 +489,7 @@ function updatePostButton(user) {
 
         postBtn.onmouseleave = () => {
             postBtnText.innerHTML = `
-                <i class="fa-solid fa-plus"></i>
+                <i class="fa-solid fa-lock"></i>
                 <span>Post</span>
             `;
             postBtn.style.borderColor = '';
