@@ -97,26 +97,31 @@
                         <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
                     </div>
 
-                    <!-- Auth Dropdown -->
-                    <div class="relative group">
-                        <button class="flex items-center gap-x-2 px-5 py-2.5 text-sm font-semibold hover:bg-slate-900 transition-colors rounded-3xl border border-slate-700">
+                    <!-- Account Dropdown (Click - Fixed) -->
+                    <div class="relative">
+                        <button onclick="toggleAccountDropdown(event)"
+                                class="flex items-center gap-x-2 px-5 py-2.5 text-sm font-semibold hover:bg-slate-900 transition-colors rounded-3xl border border-slate-700">
                             <span>Account</span>
-                            <i class="fa-solid fa-chevron-down text-xs transition-transform group-hover:rotate-180"></i>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform" id="chevron-icon"></i>
                         </button>
                         
-                        <!-- Dropdown Menu -->
-                        <div class="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl py-2 hidden group-hover:block z-50">
-                            <button onclick="showLoginModal(); document.querySelector('.group').classList.remove('group-hover:block');" 
+                        <div id="account-dropdown" 
+                             class="hidden absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl py-2 z-50">
+                            
+                            <button onclick="showLoginModal(); hideAccountDropdown();"
                                     class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
                                 <i class="fa-solid fa-sign-in-alt w-4"></i>
                                 <span>Log in</span>
                             </button>
-                            <button onclick="showRegisterModal(); document.querySelector('.group').classList.remove('group-hover:block');" 
+                            
+                            <button onclick="showRegisterModal(); hideAccountDropdown();"
                                     class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
                                 <i class="fa-solid fa-user-plus w-4"></i>
                                 <span>Register</span>
                             </button>
+                            
                             <div class="border-t border-slate-700 my-1"></div>
+                            
                             <a href="#" class="block px-4 py-2.5 text-sm hover:bg-slate-800 text-slate-400">
                                 <i class="fa-solid fa-question-circle w-4 mr-3"></i> Forgot Password?
                             </a>
