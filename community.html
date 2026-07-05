@@ -591,7 +591,7 @@ async function submitPost() {
         return;
     }
 
-    // === Get fresh user data (most important fix) ===
+    // Get fresh user data
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
     if (userError || !user) {
@@ -601,10 +601,13 @@ async function submitPost() {
         return;
     }
 
-    // Show loading state
-    const postButton = event.currentTarget;
-    const originalText = postButton ? postButton.innerHTML : '';
-    if (postButton) postButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Posting...`;
+    // Find the Post button and show loading state
+    const postBtn = document.querySelector('#upload-modal button[onclick*="submitPost"]');
+    const originalText = postBtn ? postBtn.innerHTML : '';
+    if (postBtn) {
+        postBtn.disabled = true;
+        postBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Posting...`;
+    }
 
     try {
         // 1. Upload image to Supabase Storage
@@ -644,7 +647,7 @@ async function submitPost() {
         alert("Post created successfully!");
         closeUploadModal();
 
-        // Refresh posts on the page
+        // Refresh posts on the page (we'll build this soon)
         if (typeof loadCommunityPosts === 'function') {
             loadCommunityPosts();
         }
@@ -653,7 +656,11 @@ async function submitPost() {
         console.error("Error creating post:", error);
         alert("Failed to create post: " + error.message);
     } finally {
-        if (postButton && originalText) postButton.innerHTML = originalText;
+        // Reset button state
+        if (postBtn) {
+            postBtn.disabled = false;
+            postBtn.innerHTML = originalText || 'Post';
+        }
     }
 }
 
