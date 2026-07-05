@@ -281,32 +281,33 @@
 
         // ==================== AUTH FUNCTIONS ====================
         async function registerUser() {
+            const username = document.getElementById('register-username').value.trim();
             const email = document.getElementById('register-email').value.trim();
             const password = document.getElementById('register-password').value;
 
-            if (!email || !password) {
-                alert('Please enter both email and password.');
+            if (!username || !email || !password) {
+                alert('Please fill in username, email, and password.');
                 return;
             }
 
-            if (!supabaseClient) {
-                alert('Supabase client not initialized. Check your anon key.');
-                console.error('supabaseClient is null');
+            if (username.length < 3) {
+                alert('Username must be at least 3 characters long.');
                 return;
             }
-
-            console.log('Attempting to register...');
 
             const { data, error } = await supabaseClient.auth.signUp({
                 email: email,
-                password: password
+                password: password,
+                options: {
+                    data: {
+                        username: username
+                    }
+                }
             });
 
             if (error) {
-                console.error('Supabase register error:', error);
                 alert('Error: ' + error.message);
             } else {
-                console.log('Register success:', data);
                 alert('Account created! You can now log in.');
                 closeAuthModal();
             }
