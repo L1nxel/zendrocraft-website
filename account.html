@@ -244,6 +244,20 @@
             initSupabase();
             checkAuthAndLoadData();
         }
+function copyServerIP() {
+    navigator.clipboard.writeText('Play.ZendroCraft.Com').then(() => {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-3xl text-sm font-medium shadow-lg z-[200]';
+        toast.innerHTML = `<i class="fa-solid fa-check mr-2"></i> <span>IP copied to clipboard!</span>`;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.transition = 'all 0.3s ease';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    });
+}
     </script>
 
 </body>
