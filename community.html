@@ -12,137 +12,80 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200">
-    <!-- Navbar -->
+
+    <!-- Navbar (you can keep your existing one or use this) -->
     <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
         <div class="max-w-screen-xl mx-auto px-8 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-x-3" onclick="window.location.href='index.html'" style="cursor: pointer;">
+            <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
                 <div class="w-9 h-9 bg-indigo-600 rounded-2xl flex items-center justify-center">
                     <i class="fa-solid fa-cube text-white text-2xl"></i>
                 </div>
                 <span class="font-display text-2xl font-semibold tracking-tighter">ZendroCraft</span>
             </div>
-            <div>
-                <button onclick="window.location.href='index.html'" 
-                        class="px-5 py-2 text-sm font-medium hover:bg-slate-900 rounded-3xl transition-colors">
-                    ← Back to Home
+            
+            <div class="flex items-center gap-x-4">
+                <!-- Login / Account Button -->
+                <button id="auth-button"
+                        class="px-5 py-2 text-sm font-medium bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-3xl transition-colors">
+                    Login / Register
                 </button>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-screen-xl mx-auto px-8 py-12">
-        <div class="flex items-end justify-between mb-8">
+    <!-- Page Header -->
+    <div class="max-w-screen-xl mx-auto px-8 pt-12 pb-8">
+        <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-5xl font-display font-semibold tracking-tighter">Community Gallery</h1>
-                <p class="text-slate-400 mt-2 text-lg">Share your builds and creations with the ZendroCraft community.</p>
+                <h1 class="font-display text-5xl font-semibold tracking-tighter">Community</h1>
+                <p class="text-slate-400 mt-2">Share your builds, moments, and adventures with the community.</p>
             </div>
-            <button onclick="showUploadModal()"
-                    class="flex items-center gap-x-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold">
+            
+            <!-- Upload Button -->
+            <button id="upload-btn"
+                    class="hidden items-center gap-x-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold transition-colors">
                 <i class="fa-solid fa-upload"></i>
                 <span>Upload Screenshot</span>
             </button>
         </div>
+    </div>
 
-        <!-- Gallery Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            
-            <!-- Example Post 1 -->
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
-                <img src="https://picsum.photos/id/1015/600/400" class="w-full h-56 object-cover" alt="Epic castle build">
-                <div class="p-5">
-                    <div class="flex items-center gap-x-3 mb-3">
-                        <div class="w-8 h-8 bg-slate-700 rounded-full"></div>
-                        <div>
-                            <div class="font-semibold">BuildMaster42</div>
-                            <div class="text-xs text-slate-500">2 days ago</div>
-                        </div>
-                    </div>
-                    <p class="text-sm text-slate-300 mb-4">"Finally finished my medieval castle! Took over 80 hours."</p>
-                    
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center gap-x-4 text-slate-400">
-                            <div class="flex items-center gap-x-1">
-                                <i class="fa-solid fa-heart"></i>
-                                <span>184</span>
-                            </div>
-                            <div class="flex items-center gap-x-1">
-                                <i class="fa-solid fa-comment"></i>
-                                <span>37</span>
-                            </div>
-                        </div>
-                        <button class="text-indigo-400 hover:text-indigo-300 text-sm font-medium">View Comments</button>
-                    </div>
-                </div>
+    <!-- Image Grid -->
+    <div class="max-w-screen-xl mx-auto px-8 pb-20">
+        <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Posts will be loaded here by JavaScript -->
+            <div class="col-span-full text-center py-12 text-slate-500">
+                Loading community posts...
             </div>
-
-            <!-- Example Post 2 -->
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
-                <img src="https://picsum.photos/id/1005/600/400" class="w-full h-56 object-cover" alt="Modern house">
-                <div class="p-5">
-                    <div class="flex items-center gap-x-3 mb-3">
-                        <div class="w-8 h-8 bg-slate-700 rounded-full"></div>
-                        <div>
-                            <div class="font-semibold">PixelQueen</div>
-                            <div class="text-xs text-slate-500">5 days ago</div>
-                        </div>
-                    </div>
-                    <p class="text-sm text-slate-300 mb-4">"My new modern house overlooking the ocean."</p>
-                    
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center gap-x-4 text-slate-400">
-                            <div class="flex items-center gap-x-1">
-                                <i class="fa-solid fa-heart"></i>
-                                <span>92</span>
-                            </div>
-                            <div class="flex items-center gap-x-1">
-                                <i class="fa-solid fa-comment"></i>
-                                <span>14</span>
-                            </div>
-                        </div>
-                        <button class="text-indigo-400 hover:text-indigo-300 text-sm font-medium">View Comments</button>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <!-- Upload Modal -->
-    <div id="uploadModal" onclick="if (event.target.id === 'uploadModal') hideUploadModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
-        <div onclick="event.stopImmediatePropagation()" class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-lg p-8">
-            <h2 class="text-2xl font-semibold mb-6">Upload to Community</h2>
-            
-            <div class="space-y-5">
-                <div>
-                    <label class="text-sm text-slate-400 block mb-2">Screenshot / Image</label>
-                    <div class="border border-dashed border-slate-700 rounded-2xl p-8 text-center">
-                        <i class="fa-solid fa-image text-4xl text-slate-600 mb-3"></i>
-                        <p class="text-sm text-slate-400">Click to upload or drag and drop</p>
-                        <input type="file" class="hidden">
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="text-sm text-slate-400 block mb-1.5">Description / Caption</label>
-                    <textarea class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 h-24 focus:outline-none focus:border-indigo-500" placeholder="Tell everyone about your build..."></textarea>
-                </div>
-                
-                <button class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 rounded-3xl font-semibold">
-                    Post to Community
+    <!-- Login / Register Modal -->
+    <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8">
+            <!-- Modal content will go here -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold" id="modal-title">Login</h2>
+                <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-times text-xl"></i>
                 </button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="login-form">
+                <!-- We'll add the actual form fields next -->
+            </div>
+            
+            <!-- Register Form (hidden by default) -->
+            <div id="register-form" class="hidden">
+                <!-- We'll add this next -->
             </div>
         </div>
     </div>
 
     <script>
-        function showUploadModal() {
-            document.getElementById('uploadModal').classList.remove('hidden');
-            document.getElementById('uploadModal').classList.add('flex');
-        }
-        function hideUploadModal() {
-            document.getElementById('uploadModal').classList.remove('flex');
-            document.getElementById('uploadModal').classList.add('hidden');
-        }
+        // We'll add all the JavaScript here in the next steps
     </script>
+
 </body>
 </html>
