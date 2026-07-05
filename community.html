@@ -617,15 +617,14 @@ function setupCaptionCounter() {
 
     textarea.addEventListener('input', () => {
         const currentLength = textarea.value.length;
-        counter.textContent = `${currentLength} / 300`;
+        counter.textContent = `${currentLength} / 150`;
 
-        // Change color when getting close to the limit
-        if (currentLength > 270) {
-            counter.style.color = '#f87171'; // red-400
-        } else if (currentLength > 240) {
-            counter.style.color = '#fbbf24'; // amber-400
+        if (currentLength > 135) {
+            counter.style.color = '#f87171'; // Red
+        } else if (currentLength > 120) {
+            counter.style.color = '#fbbf24'; // Amber
         } else {
-            counter.style.color = '#64748b'; // slate-500
+            counter.style.color = '#64748b'; // Normal
         }
     });
 }
@@ -667,11 +666,12 @@ function setupCaptionCounter() {
 <div class="mb-6">
     <div class="flex items-center justify-between mb-2">
         <label class="block text-sm text-slate-400">Caption / Comment</label>
-        <span id="caption-counter" class="text-xs text-slate-500">0 / 300</span>
+        <span id="caption-counter" class="text-xs text-slate-500">0 / 150</span>
     </div>
-    <textarea id="post-caption" rows="3" maxlength="300"
+    <textarea id="post-caption" rows="3" maxlength="150"
               class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500 resize-none"
               placeholder="Write something about this screenshot..."></textarea>
+    <p class="text-[10px] text-slate-500 mt-1">Maximum 150 characters</p>
 </div>
 
         <!-- Enable/Disable Settings -->
