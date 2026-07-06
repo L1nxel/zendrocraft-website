@@ -366,6 +366,44 @@ async function registerUser() {
         closeAuthModal();
     }
 }
+function showForgotPasswordModal() {
+    closeLoginModal(); // Close login modal if open
+    document.getElementById('forgot-password-modal').classList.remove('hidden');
+    document.getElementById('forgot-password-modal').classList.add('flex');
+}
+
+function closeForgotPasswordModal() {
+    const modal = document.getElementById('forgot-password-modal');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+}
+
+async function sendPasswordResetEmail() {
+    const email = document.getElementById('forgot-email').value.trim();
+
+    if (!email) {
+        alert("Please enter your email address.");
+        return;
+    }
+
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: 'https://zendrocraft.com/reset-password.html'
+        });
+
+        if (error) {
+            alert("Error: " + error.message);
+            return;
+        }
+
+        alert("Password reset link has been sent to your email. Please check your inbox (and spam folder).");
+        closeForgotPasswordModal();
+
+    } catch (err) {
+        console.error(err);
+        alert("Something went wrong. Please try again.");
+    }
+}
 </script>
     <!-- Login / Register Modal -->
     <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
@@ -394,6 +432,12 @@ async function registerUser() {
                             class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold mt-2">
                         Log In
                     </button>
+<div class="text-center mt-3">
+    <button onclick="showForgotPasswordModal()" 
+            class="text-sm text-slate-400 hover:text-amber-400 transition-colors">
+        Forgot your password?
+    </button>
+</div>
                 </div>
                 <p class="text-center text-sm text-slate-400 mt-4">
                     Don't have an account? 
@@ -434,5 +478,37 @@ async function registerUser() {
 </div>
         </div>
     </div>
+<!-- Forgot Password Modal -->
+<div id="forgot-password-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8 w-full max-w-md">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-semibold">Reset Password</h3>
+            <button onclick="closeForgotPasswordModal()" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+
+        <p class="text-slate-400 mb-6 text-sm">Enter your email and we'll send you a link to reset your password.</p>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
+                <input type="email" id="forgot-email" 
+                       class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-amber-500"
+                       placeholder="you@example.com">
+            </div>
+
+            <button onclick="sendPasswordResetEmail()"
+                    class="w-full py-3.5 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold transition-colors">
+                Send Reset Link
+            </button>
+        </div>
+
+        <div class="text-center mt-6">
+            <button onclick="closeForgotPasswordModal(); showLoginModal()" 
+                    class="text-sm text-slate-400 hover:text-white">
+                Back to Login
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
