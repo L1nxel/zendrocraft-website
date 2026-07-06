@@ -90,12 +90,13 @@
     <div class="flex items-center justify-between">
         <div>
             <h3 class="text-xl font-semibold">Password</h3>
-            <p class="text-slate-400 mt-1">Change your account password</p>
+            <p class="text-slate-400 mt-1">Reset your password via email</p>
         </div>
-        <button onclick="showChangePasswordModal()" 
-                class="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
-            <i class="fa-solid fa-key mr-2"></i> Change Password
-        </button>
+        <a href="reset-password.html" 
+           class="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors inline-flex items-center gap-x-2">
+            <i class="fa-solid fa-key mr-2"></i> 
+            <span>Reset Password</span>
+        </a>
     </div>
 </div>
 
@@ -216,22 +217,6 @@
             }
         }
 
-        async function editPassword() {
-            const newPassword = prompt("Enter your new password (min 6 characters):");
-            if (!newPassword || newPassword.length < 6) {
-                alert("Password must be at least 6 characters long.");
-                return;
-            }
-
-            const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
-
-            if (error) {
-                alert('Error: ' + error.message);
-            } else {
-                alert('Password updated successfully!');
-            }
-        }
-
         async function logoutUser() {
             await supabaseClient.auth.signOut();
             window.location.href = 'index.html';
@@ -255,92 +240,6 @@ function copyServerIP() {
             setTimeout(() => toast.remove(), 300);
         }, 2000);
     });
-}
-// ==================== CHANGE PASSWORD ====================
-function showChangePasswordModal() {
-    document.getElementById('change-password-modal').classList.remove('hidden');
-    document.getElementById('change-password-modal').classList.add('flex');
-}
-
-function closeChangePasswordModal() {
-    document.getElementById('change-password-modal').classList.remove('flex');
-    document.getElementById('change-password-modal').classList.add('hidden');
-}
-
-async function changePassword() {
-    const currentPassword = document.getElementById('current-password').value.trim();
-    const newPassword = document.getElementById('new-password').value.trim();
-    const confirmPassword = document.getElementById('confirm-new-password').value.trim();
-
-    if (!currentPassword || !newPassword || !confirmPassword) {
-        alert("Please fill in all three fields.");
-        return;
-    }
-
-    if (newPassword.length < 6) {
-        alert("New password must be at least 6 characters long.");
-        return;
-    }
-
-    if (newPassword !== confirmPassword) {
-        alert("New passwords do not match.");
-        return;
-    }
-
-    const updateBtn = document.querySelector('#change-password-modal button[onclick*="changePassword"]');
-    const originalText = updateBtn ? updateBtn.innerHTML : 'Update Password';
-
-    try {
-        if (updateBtn) {
-            updateBtn.disabled = true;
-            updateBtn.innerHTML = 'Verifying...';
-        }
-
-        // 1. Re-authenticate with current password
-        const { error: signInError } = await supabaseClient.auth.signInWithPassword({
-            email: currentUser.email,
-            password: currentPassword
-        });
-
-        if (signInError) {
-            alert("Current password is incorrect.");
-            if (updateBtn) {
-                updateBtn.disabled = false;
-                updateBtn.innerHTML = originalText;
-            }
-            return;
-        }
-
-        if (updateBtn) updateBtn.innerHTML = 'Updating password...';
-
-        // 2. Immediately update the password — NO getSession, NO refreshSession, NO getUser in between!
-        const { error: updateError } = await supabaseClient.auth.updateUser({
-            password: newPassword
-        });
-
-        if (updateError) {
-            console.error("Update error:", updateError);
-            alert("Failed to update password: " + updateError.message);
-            return;
-        }
-
-        alert("Password updated successfully!");
-        closeChangePasswordModal();
-
-        // Clear the form
-        document.getElementById('current-password').value = '';
-        document.getElementById('new-password').value = '';
-        document.getElementById('confirm-new-password').value = '';
-
-    } catch (error) {
-        console.error("Password change error:", error);
-        alert("Error: " + error.message);
-    } finally {
-        if (updateBtn) {
-            updateBtn.disabled = false;
-            updateBtn.innerHTML = originalText;
-        }
-    }
 }
 
 // ==================== CHANGE EMAIL ====================
@@ -390,45 +289,6 @@ async function changeEmail() {
     }
 }
     </script>
-<!-- Change Password Modal -->
-<div id="change-password-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
-        <button onclick="closeChangePasswordModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
-            <i class="fa-solid fa-times text-xl"></i>
-        </button>
-
-        <h2 class="text-2xl font-semibold mb-6">Change Password</h2>
-
-        <div class="space-y-4">
-            <div>
-                <label class="text-sm text-slate-400">Current Password</label>
-                <input type="password" id="current-password" 
-                       class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
-            </div>
-            <div>
-                <label class="text-sm text-slate-400">New Password</label>
-                <input type="password" id="new-password" 
-                       class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
-            </div>
-            <div>
-                <label class="text-sm text-slate-400">Confirm New Password</label>
-                <input type="password" id="confirm-new-password" 
-                       class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
-            </div>
-        </div>
-
-        <div class="flex gap-x-3 mt-8">
-            <button onclick="closeChangePasswordModal()"
-                    class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold transition-colors">
-                Cancel
-            </button>
-            <button onclick="changePassword()"
-                    class="flex-1 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold transition-colors">
-                Update Password
-            </button>
-        </div>
-    </div>
-</div>
 
 <!-- Change Email Modal -->
 <div id="change-email-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
