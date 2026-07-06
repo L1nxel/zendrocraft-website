@@ -572,7 +572,7 @@ window.onload = function() {
             document.getElementById('modal-title').textContent = 'Login';
         }
 function showForgotPasswordModal() {
-    closeLoginModal(); // Close login modal if open
+    closeAuthModal(); // ← Fixed
     document.getElementById('forgot-password-modal').classList.remove('hidden');
     document.getElementById('forgot-password-modal').classList.add('flex');
 }
