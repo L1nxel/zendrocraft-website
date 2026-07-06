@@ -299,7 +299,7 @@ async function changePassword() {
             return;
         }
 
-        // Step 2: Refresh the session (important)
+        // Step 2: Force refresh the session (this often fixes the error)
         await supabaseClient.auth.refreshSession();
 
         // Step 3: Update to the new password
@@ -307,12 +307,16 @@ async function changePassword() {
             password: newPassword
         });
 
-        if (updateError) throw updateError;
+        if (updateError) {
+            console.error("Update password error:", updateError);
+            alert("Failed to update password: " + updateError.message);
+            return;
+        }
 
         alert("Password updated successfully!");
         closeChangePasswordModal();
 
-        // Clear the input fields
+        // Clear inputs
         document.getElementById('current-password').value = '';
         document.getElementById('new-password').value = '';
         document.getElementById('confirm-new-password').value = '';
