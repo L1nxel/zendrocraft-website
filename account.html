@@ -288,8 +288,8 @@ async function changePassword() {
     }
 
     try {
-        // Re-authenticate with current password
-        const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+        // Step 1: Re-authenticate with current password
+        const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
             email: currentUser.email,
             password: currentPassword
         });
@@ -299,7 +299,10 @@ async function changePassword() {
             return;
         }
 
-        // Update password
+        // Step 2: Refresh the session (important)
+        await supabaseClient.auth.refreshSession();
+
+        // Step 3: Update to the new password
         const { error: updateError } = await supabaseClient.auth.updateUser({
             password: newPassword
         });
@@ -309,7 +312,13 @@ async function changePassword() {
         alert("Password updated successfully!");
         closeChangePasswordModal();
 
+        // Clear the input fields
+        document.getElementById('current-password').value = '';
+        document.getElementById('new-password').value = '';
+        document.getElementById('confirm-new-password').value = '';
+
     } catch (error) {
+        console.error("Password change error:", error);
         alert("Error: " + error.message);
     }
 }
