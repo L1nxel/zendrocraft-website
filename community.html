@@ -18,6 +18,31 @@
     transform: translateY(-2px);
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
+/* === NEW: Pop-out image effect === */
+.post-image {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                box-shadow 0.3s ease;
+}
+
+.post-card:hover .post-image {
+    transform: scale(1.08) translateY(-6px);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+}
+
+/* Like button styling */
+.like-btn.liked {
+    color: #f59e0b;
+}
+
+.like-btn.liked i {
+    animation: pop 0.3s ease;
+}
+
+@keyframes pop {
+    0% { transform: scale(0.6); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200">
@@ -160,11 +185,11 @@
 
     <script>
 // ==================== LOAD AND DISPLAY POSTS ====================
+// ==================== LOAD AND DISPLAY POSTS (Enhanced) ====================
 async function loadCommunityPosts() {
     const grid = document.getElementById('posts-grid');
     if (!grid) return;
 
-    // Show loading state
     grid.innerHTML = `
         <div class="col-span-full text-center py-12 text-slate-400">
             <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
@@ -173,7 +198,6 @@ async function loadCommunityPosts() {
     `;
 
     try {
-        // Fetch posts + username from profiles
         const { data: posts, error } = await supabaseClient
             .from('posts')
             .select(`
@@ -183,7 +207,8 @@ async function loadCommunityPosts() {
                 created_at,
                 allow_likes,
                 allow_comments,
-                profiles (username)
+                profiles (username),
+                likes (user_id)
             `)
             .order('created_at', { ascending: false });
 
@@ -200,29 +225,28 @@ async function loadCommunityPosts() {
             return;
         }
 
-        // Build the posts grid
         grid.innerHTML = '';
 
         posts.forEach(post => {
             const username = post.profiles?.username || 'Unknown';
+            const likeCount = post.likes ? post.likes.length : 0;
+            const isLiked = currentUser && post.likes?.some(l => l.user_id === currentUser.id);
             const date = new Date(post.created_at).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
+                month: 'short', day: 'numeric', year: 'numeric'
             });
 
             const postHTML = `
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden group">
-                    <!-- Image -->
-                    <div class="aspect-video bg-slate-950 overflow-hidden">
+                <div class="post-card bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden group">
+                    <!-- Image (click to open detail modal) -->
+                    <div class="aspect-video bg-slate-950 overflow-hidden cursor-pointer" 
+                         onclick="openPostDetail('${post.id}')">
                         <img src="${post.image_url}" 
-                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                             class="post-image w-full h-full object-cover"
                              alt="Community post">
                     </div>
 
                     <!-- Content -->
                     <div class="p-5">
-                        <!-- Username + Date -->
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-x-2">
                                 <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center text-sm font-bold">
@@ -233,14 +257,26 @@ async function loadCommunityPosts() {
                             <span class="text-xs text-slate-500">${date}</span>
                         </div>
 
-                        <!-- Caption -->
                         ${post.caption ? `
-                            <p class="text-slate-300 text-sm leading-relaxed line-clamp-3">
+                            <p class="text-slate-300 text-sm leading-relaxed line-clamp-3 mb-4">
                                 ${post.caption}
                             </p>
                         ` : ''}
 
-                        <!-- Future: Like & Comment buttons will go here -->
+                        <!-- Like + Comment Buttons -->
+                        <div class="flex items-center gap-x-4">
+                            <button onclick="event.stopImmediatePropagation(); toggleLike('${post.id}', this)"
+                                    class="like-btn flex items-center gap-x-1.5 text-sm font-medium transition-colors ${isLiked ? 'liked text-amber-400' : 'text-slate-400 hover:text-amber-400'}">
+                                <i class="fa-solid fa-heart"></i>
+                                <span class="like-count">${likeCount}</span>
+                            </button>
+
+                            <button onclick="event.stopImmediatePropagation(); openPostDetail('${post.id}')"
+                                    class="flex items-center gap-x-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                                <i class="fa-solid fa-comment"></i>
+                                <span>Comment</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -250,11 +286,7 @@ async function loadCommunityPosts() {
 
     } catch (error) {
         console.error("Error loading posts:", error);
-        grid.innerHTML = `
-            <div class="col-span-full text-center py-12 text-red-400">
-                <p>Failed to load posts. Please refresh the page.</p>
-            </div>
-        `;
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-red-400">Failed to load posts.</div>`;
     }
 }
         // ==================== SUPABASE SETUP ====================
@@ -824,7 +856,150 @@ async function sendPasswordResetEmail() {
         alert("Something went wrong. Please try again.");
     }
 }
+// ==================== NEW: POST DETAIL MODAL + LIKES + COMMENTS ====================
+
+let currentPostId = null;
+
+async function openPostDetail(postId) {
+    currentPostId = postId;
+    const modal = document.getElementById('post-detail-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    const { data: post, error } = await supabaseClient
+        .from('posts')
+        .select(`*, profiles (username), likes (user_id)`)
+        .eq('id', postId)
+        .single();
+
+    if (error || !post) {
+        alert("Post not found.");
+        closePostDetailModal();
+        return;
+    }
+
+    // Fill modal
+    document.getElementById('modal-image').src = post.image_url;
+    document.getElementById('modal-username').textContent = post.profiles?.username || 'Unknown';
+    document.getElementById('modal-date').textContent = new Date(post.created_at).toLocaleDateString();
+    document.getElementById('modal-caption').textContent = post.caption || '';
+    document.getElementById('modal-like-count').textContent = post.likes?.length || 0;
+
+    const avatar = document.getElementById('modal-username-avatar');
+    avatar.textContent = (post.profiles?.username || 'U').charAt(0).toUpperCase();
+
+    await loadComments(postId);
+
+    // Setup like button in modal
+    const likeBtn = document.getElementById('modal-like-btn');
+    const isLiked = currentUser && post.likes?.some(l => l.user_id === currentUser.id);
+    
+    likeBtn.innerHTML = `
+        <i class="fa-solid fa-heart mr-2 ${isLiked ? 'text-amber-400' : ''}"></i>
+        <span>${post.likes?.length || 0}</span>
+    `;
+    likeBtn.onclick = () => toggleLikeInModal(postId, likeBtn);
+}
+
+function closePostDetailModal() {
+    const modal = document.getElementById('post-detail-modal');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+    currentPostId = null;
+}
+
+async function toggleLike(postId, buttonElement) {
+    if (!currentUser) {
+        showLoginModal();
+        return;
+    }
+
+    const countSpan = buttonElement.querySelector('.like-count');
+    const isCurrentlyLiked = buttonElement.classList.contains('liked');
+
+    try {
+        if (isCurrentlyLiked) {
+            await supabaseClient.from('likes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
+            buttonElement.classList.remove('liked');
+            buttonElement.classList.add('text-slate-400');
+            countSpan.textContent = parseInt(countSpan.textContent) - 1;
+        } else {
+            await supabaseClient.from('likes').insert({ post_id: postId, user_id: currentUser.id });
+            buttonElement.classList.add('liked');
+            buttonElement.classList.remove('text-slate-400');
+            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+        }
+    } catch (error) {
+        alert("Failed to update like.");
+    }
+}
+
+async function toggleLikeInModal(postId, likeBtn) {
+    // Simple version - just reload modal after toggle
+    await toggleLike(postId, likeBtn);
+    await openPostDetail(postId);
+}
+
+async function loadComments(postId) {
+    const container = document.getElementById('comments-container');
+    container.innerHTML = `<div class="text-center py-8 text-slate-500">Loading comments...</div>`;
+
+    const { data: comments, error } = await supabaseClient
+        .from('comments')
+        .select(`id, content, created_at, profiles (username)`)
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true });
+
+    if (error || !comments || comments.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-slate-500">No comments yet. Be the first!</div>`;
+        return;
+    }
+
+    container.innerHTML = '';
+    comments.forEach(comment => {
+        const username = comment.profiles?.username || 'Unknown';
+        const date = new Date(comment.created_at).toLocaleDateString();
+        container.innerHTML += `
+            <div class="mb-4 pb-4 border-b border-slate-800 last:border-none">
+                <div class="flex items-center gap-x-2 mb-1">
+                    <span class="font-semibold text-sm">${username}</span>
+                    <span class="text-xs text-slate-500">${date}</span>
+                </div>
+                <p class="text-slate-300 text-sm">${comment.content}</p>
+            </div>
+        `;
+    });
+}
+
+async function submitComment() {
+    if (!currentUser || !currentPostId) {
+        alert("You must be logged in to comment.");
+        return;
+    }
+
+    const input = document.getElementById('comment-input');
+    const content = input.value.trim();
+    if (!content) return;
+
+    try {
+        const { error } = await supabaseClient.from('comments').insert({
+            post_id: currentPostId,
+            user_id: currentUser.id,
+            content: content
+        });
+
+        if (error) throw error;
+
+        input.value = '';
+        await loadComments(currentPostId);
+    } catch (error) {
+        alert("Failed to post comment.");
+    }
+}
+
     </script>
+
+
 <!-- Upload / Create Post Modal -->
 <div id="upload-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-lg p-8 relative">
@@ -944,6 +1119,58 @@ async function sendPasswordResetEmail() {
                     class="text-sm text-slate-400 hover:text-white">
                 Back to Login
             </button>
+        </div>
+    </div>
+</div>
+<!-- ==================== POST DETAIL MODAL ==================== -->
+<div id="post-detail-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[120] p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+            <div class="flex items-center gap-x-3">
+                <div id="modal-username-avatar" class="w-9 h-9 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center font-bold"></div>
+                <div>
+                    <div id="modal-username" class="font-semibold"></div>
+                    <div id="modal-date" class="text-xs text-slate-500"></div>
+                </div>
+            </div>
+            <button onclick="closePostDetailModal()" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+
+        <!-- Image -->
+        <div class="bg-slate-950 flex items-center justify-center p-4">
+            <img id="modal-image" class="max-h-[420px] w-full object-contain rounded-2xl">
+        </div>
+
+        <!-- Likes + Caption -->
+        <div class="px-6 py-4 border-b border-slate-800">
+            <div class="flex items-center gap-x-4 mb-3">
+                <button id="modal-like-btn" class="flex items-center gap-x-2 text-lg font-medium transition-colors">
+                    <i class="fa-solid fa-heart"></i>
+                    <span id="modal-like-count">0</span>
+                </button>
+                <div class="flex items-center gap-x-2 text-slate-400">
+                    <i class="fa-solid fa-comment"></i>
+                    <span id="modal-comment-count">0 comments</span>
+                </div>
+            </div>
+            <div id="modal-caption" class="text-slate-300"></div>
+        </div>
+
+        <!-- Comments -->
+        <div class="flex-1 overflow-y-auto px-6 py-4" id="comments-container"></div>
+
+        <!-- Add Comment -->
+        <div class="border-t border-slate-800 p-4">
+            <div class="flex gap-x-3">
+                <input type="text" id="comment-input" 
+                       class="flex-1 bg-slate-950 border border-slate-700 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500"
+                       placeholder="Write a comment...">
+                <button onclick="submitComment()" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold text-sm">
+                    Post
+                </button>
+            </div>
         </div>
     </div>
 </div>
