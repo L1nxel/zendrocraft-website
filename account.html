@@ -268,12 +268,12 @@ function closeChangePasswordModal() {
 }
 
 async function changePassword() {
-    const currentPassword = document.getElementById('current-password').value;
-    const newPassword = document.getElementById('new-password').value;
-    const confirmPassword = document.getElementById('confirm-new-password').value;
+    const currentPassword = document.getElementById('current-password').value.trim();
+    const newPassword = document.getElementById('new-password').value.trim();
+    const confirmPassword = document.getElementById('confirm-new-password').value.trim();
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-        alert("Please fill in all fields.");
+        alert("Please fill in all three fields.");
         return;
     }
 
@@ -287,8 +287,16 @@ async function changePassword() {
         return;
     }
 
+    const updateBtn = document.querySelector('#change-password-modal button[onclick*="changePassword"]');
+    const originalText = updateBtn ? updateBtn.innerHTML : 'Update Password';
+
     try {
-        // Re-authenticate with current password
+        if (updateBtn) {
+            updateBtn.disabled = true;
+            updateBtn.innerHTML = 'Verifying...';
+        }
+
+        // 1. Re-authenticate with current password
         const { error: signInError } = await supabaseClient.auth.signInWithPassword({
             email: currentUser.email,
             password: currentPassword
@@ -296,10 +304,16 @@ async function changePassword() {
 
         if (signInError) {
             alert("Current password is incorrect.");
+            if (updateBtn) {
+                updateBtn.disabled = false;
+                updateBtn.innerHTML = originalText;
+            }
             return;
         }
 
-        // Immediately update the password (no getSession or refreshSession in between)
+        if (updateBtn) updateBtn.innerHTML = 'Updating password...';
+
+        // 2. Immediately update the password — NO getSession, NO refreshSession, NO getUser in between!
         const { error: updateError } = await supabaseClient.auth.updateUser({
             password: newPassword
         });
@@ -313,7 +327,7 @@ async function changePassword() {
         alert("Password updated successfully!");
         closeChangePasswordModal();
 
-        // Clear the input fields
+        // Clear the form
         document.getElementById('current-password').value = '';
         document.getElementById('new-password').value = '';
         document.getElementById('confirm-new-password').value = '';
@@ -321,6 +335,11 @@ async function changePassword() {
     } catch (error) {
         console.error("Password change error:", error);
         alert("Error: " + error.message);
+    } finally {
+        if (updateBtn) {
+            updateBtn.disabled = false;
+            updateBtn.innerHTML = originalText;
+        }
     }
 }
 
