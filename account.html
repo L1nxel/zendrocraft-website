@@ -71,33 +71,33 @@
             </div>
         </div>
 
-        <!-- Email Section -->
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 mb-6">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h3 class="text-xl font-semibold">Email Address</h3>
-                    <p id="current-email" class="text-lg text-slate-300 mt-1">Loading...</p>
-                </div>
-                <button onclick="editEmail()" 
-                        class="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
-                    <i class="fa-solid fa-edit mr-2"></i> Edit
-                </button>
-            </div>
+<!-- Email Section -->
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 mb-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="text-xl font-semibold">Email Address</h3>
+            <p id="current-email" class="text-lg text-slate-300 mt-1">Loading...</p>
         </div>
+        <button onclick="showChangeEmailModal()" 
+                class="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
+            <i class="fa-solid fa-edit mr-2"></i> Edit
+        </button>
+    </div>
+</div>
 
-        <!-- Password Section -->
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 mb-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-xl font-semibold">Password</h3>
-                    <p class="text-slate-400 mt-1">Change your account password</p>
-                </div>
-                <button onclick="editPassword()" 
-                        class="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
-                    <i class="fa-solid fa-key mr-2"></i> Change Password
-                </button>
-            </div>
+<!-- Password Section -->
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="text-xl font-semibold">Password</h3>
+            <p class="text-slate-400 mt-1">Change your account password</p>
         </div>
+        <button onclick="showChangePasswordModal()" 
+                class="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
+            <i class="fa-solid fa-key mr-2"></i> Change Password
+        </button>
+    </div>
+</div>
 
         <!-- Logout Button -->
         <div class="text-center">
@@ -256,7 +256,184 @@ function copyServerIP() {
         }, 2000);
     });
 }
-    </script>
+// ==================== CHANGE PASSWORD ====================
+function showChangePasswordModal() {
+    document.getElementById('change-password-modal').classList.remove('hidden');
+    document.getElementById('change-password-modal').classList.add('flex');
+}
 
+function closeChangePasswordModal() {
+    document.getElementById('change-password-modal').classList.remove('flex');
+    document.getElementById('change-password-modal').classList.add('hidden');
+}
+
+async function changePassword() {
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-new-password').value;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        alert("New password must be at least 6 characters long.");
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert("New passwords do not match.");
+        return;
+    }
+
+    try {
+        // Re-authenticate with current password
+        const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+            email: currentUser.email,
+            password: currentPassword
+        });
+
+        if (signInError) {
+            alert("Current password is incorrect.");
+            return;
+        }
+
+        // Update password
+        const { error: updateError } = await supabaseClient.auth.updateUser({
+            password: newPassword
+        });
+
+        if (updateError) throw updateError;
+
+        alert("Password updated successfully!");
+        closeChangePasswordModal();
+
+    } catch (error) {
+        alert("Error: " + error.message);
+    }
+}
+
+// ==================== CHANGE EMAIL ====================
+function showChangeEmailModal() {
+    document.getElementById('change-email-modal').classList.remove('hidden');
+    document.getElementById('change-email-modal').classList.add('flex');
+}
+
+function closeChangeEmailModal() {
+    document.getElementById('change-email-modal').classList.remove('flex');
+    document.getElementById('change-email-modal').classList.add('hidden');
+}
+
+async function changeEmail() {
+    const currentPassword = document.getElementById('email-current-password').value;
+    const newEmail = document.getElementById('new-email').value.trim();
+
+    if (!currentPassword || !newEmail) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    try {
+        // Re-authenticate
+        const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+            email: currentUser.email,
+            password: currentPassword
+        });
+
+        if (signInError) {
+            alert("Current password is incorrect.");
+            return;
+        }
+
+        // Update email
+        const { error: updateError } = await supabaseClient.auth.updateUser({
+            email: newEmail
+        });
+
+        if (updateError) throw updateError;
+
+        alert("A confirmation email has been sent to your new address.");
+        closeChangeEmailModal();
+
+    } catch (error) {
+        alert("Error: " + error.message);
+    }
+}
+    </script>
+<!-- Change Password Modal -->
+<div id="change-password-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
+        <button onclick="closeChangePasswordModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-times text-xl"></i>
+        </button>
+
+        <h2 class="text-2xl font-semibold mb-6">Change Password</h2>
+
+        <div class="space-y-4">
+            <div>
+                <label class="text-sm text-slate-400">Current Password</label>
+                <input type="password" id="current-password" 
+                       class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+                <label class="text-sm text-slate-400">New Password</label>
+                <input type="password" id="new-password" 
+                       class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+                <label class="text-sm text-slate-400">Confirm New Password</label>
+                <input type="password" id="confirm-new-password" 
+                       class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+            </div>
+        </div>
+
+        <div class="flex gap-x-3 mt-8">
+            <button onclick="closeChangePasswordModal()"
+                    class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold transition-colors">
+                Cancel
+            </button>
+            <button onclick="changePassword()"
+                    class="flex-1 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold transition-colors">
+                Update Password
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Change Email Modal -->
+<div id="change-email-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
+        <button onclick="closeChangeEmailModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-times text-xl"></i>
+        </button>
+
+        <h2 class="text-2xl font-semibold mb-6">Change Email Address</h2>
+
+        <div class="space-y-4">
+            <div>
+                <label class="text-sm text-slate-400">Current Password</label>
+                <input type="password" id="email-current-password" 
+                       class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+                <label class="text-sm text-slate-400">New Email Address</label>
+                <input type="email" id="new-email" 
+                       class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+            </div>
+        </div>
+
+        <div class="flex gap-x-3 mt-8">
+            <button onclick="closeChangeEmailModal()"
+                    class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold transition-colors">
+                Cancel
+            </button>
+            <button onclick="changeEmail()"
+                    class="flex-1 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold transition-colors">
+                Update Email
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
