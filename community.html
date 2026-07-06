@@ -153,6 +153,104 @@
     </div>
 
     <script>
+// ==================== LOAD AND DISPLAY POSTS ====================
+async function loadCommunityPosts() {
+    const grid = document.getElementById('posts-grid');
+    if (!grid) return;
+
+    // Show loading state
+    grid.innerHTML = `
+        <div class="col-span-full text-center py-12 text-slate-400">
+            <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
+            <p>Loading community posts...</p>
+        </div>
+    `;
+
+    try {
+        // Fetch posts + username from profiles
+        const { data: posts, error } = await supabaseClient
+            .from('posts')
+            .select(`
+                id,
+                image_url,
+                caption,
+                created_at,
+                allow_likes,
+                allow_comments,
+                profiles (username)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!posts || posts.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-16">
+                    <i class="fa-solid fa-images text-5xl text-slate-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">No posts yet</h3>
+                    <p class="text-slate-400">Be the first to share something with the community!</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Build the posts grid
+        grid.innerHTML = '';
+
+        posts.forEach(post => {
+            const username = post.profiles?.username || 'Unknown';
+            const date = new Date(post.created_at).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+
+            const postHTML = `
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden group">
+                    <!-- Image -->
+                    <div class="aspect-video bg-slate-950 overflow-hidden">
+                        <img src="${post.image_url}" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                             alt="Community post">
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-5">
+                        <!-- Username + Date -->
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-x-2">
+                                <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center text-sm font-bold">
+                                    ${username.charAt(0).toUpperCase()}
+                                </div>
+                                <span class="font-semibold">${username}</span>
+                            </div>
+                            <span class="text-xs text-slate-500">${date}</span>
+                        </div>
+
+                        <!-- Caption -->
+                        ${post.caption ? `
+                            <p class="text-slate-300 text-sm leading-relaxed line-clamp-3">
+                                ${post.caption}
+                            </p>
+                        ` : ''}
+
+                        <!-- Future: Like & Comment buttons will go here -->
+                    </div>
+                </div>
+            `;
+
+            grid.innerHTML += postHTML;
+        });
+
+    } catch (error) {
+        console.error("Error loading posts:", error);
+        grid.innerHTML = `
+            <div class="col-span-full text-center py-12 text-red-400">
+                <p>Failed to load posts. Please refresh the page.</p>
+            </div>
+        `;
+    }
+}
         // ==================== SUPABASE SETUP ====================
         const SUPABASE_URL = 'https://syipxmhmpyqbxwjhyjhn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5aXB4bWhtcHlxYnh3amh5amhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTg0OTAsImV4cCI6MjA5ODc3NDQ5MH0.38rPtmkqSSSozJeRqP4eF8MK3vKitzcPULzFyeBlbms'; // ← Replace with your real anon key
@@ -431,11 +529,7 @@ function initializeCommunityPage() {
     setTimeout(() => {
         updateNavbar();
         setupAuthListener();
-
-        // Also update the Post button on initial load
-        supabaseClient.auth.getUser().then(({ data: { user } }) => {
-            updatePostButton(user);
-        });
+        loadCommunityPosts(); // ← Add this line
     }, 400);
 
     console.log('%c[Community] Page initialized.', 'color: #64748b');
