@@ -288,7 +288,7 @@ async function changePassword() {
     }
 
     try {
-        // Step 1: Re-authenticate with current password
+        // Step 1: Re-authenticate with current password (this is the key)
         const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
             email: currentUser.email,
             password: currentPassword
@@ -299,16 +299,21 @@ async function changePassword() {
             return;
         }
 
-        // Step 2: Force refresh the session (this often fixes the error)
-        await supabaseClient.auth.refreshSession();
+        // Step 2: Get a fresh session
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
-        // Step 3: Update to the new password
+        if (sessionError || !session) {
+            alert("Session expired. Please log in again.");
+            return;
+        }
+
+        // Step 3: Update the password
         const { error: updateError } = await supabaseClient.auth.updateUser({
             password: newPassword
         });
 
         if (updateError) {
-            console.error("Update password error:", updateError);
+            console.error("Update error:", updateError);
             alert("Failed to update password: " + updateError.message);
             return;
         }
@@ -316,7 +321,7 @@ async function changePassword() {
         alert("Password updated successfully!");
         closeChangePasswordModal();
 
-        // Clear inputs
+        // Clear the fields
         document.getElementById('current-password').value = '';
         document.getElementById('new-password').value = '';
         document.getElementById('confirm-new-password').value = '';
