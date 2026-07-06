@@ -242,21 +242,38 @@
         if (chevron) chevron.classList.toggle('rotate-180');
     }
 
-    async function editUsername() {
-        const newUsername = prompt("Enter your new username:");
-        if (!newUsername || newUsername.length < 3) return;
+async function editUsername() {
+    const newUsername = prompt("Enter your new username:");
+    if (!newUsername || newUsername.length < 3) {
+        alert("Username must be at least 3 characters long.");
+        return;
+    }
 
-        const { error } = await supabaseClient.auth.updateUser({
+    try {
+        // 1. Update the profiles table (this is what shows on posts)
+        const { error: profileError } = await supabaseClient
+            .from('profiles')
+            .update({ username: newUsername })
+            .eq('id', currentUser.id);
+
+        if (profileError) throw profileError;
+
+        // 2. Also update auth metadata (so navbar + currentUser updates immediately)
+        const { error: authError } = await supabaseClient.auth.updateUser({
             data: { username: newUsername }
         });
 
-        if (error) {
-            alert('Error: ' + error.message);
-        } else {
-            alert('Username updated successfully!');
-            document.getElementById('current-username').textContent = newUsername;
-        }
+        if (authError) throw authError;
+
+        // Update the page UI
+        document.getElementById('current-username').textContent = newUsername;
+        alert('Username updated successfully! All your posts will now show the new username.');
+
+    } catch (error) {
+        console.error("Username update error:", error);
+        alert("Error updating username: " + error.message);
     }
+}
 
     function showChangeEmailModal() {
         document.getElementById('change-email-modal').classList.remove('hidden');
