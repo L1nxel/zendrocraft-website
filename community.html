@@ -34,9 +34,10 @@
 }
 
 .post-card:hover .post-image {
-    transform: scale(1.12) translateY(-8px);
-    box-shadow: 0 30px 60px -15px rgb(0 0 0 / 0.6);
-    z-index: 50;
+    transform: scale(1.35) translateY(-14px);
+    box-shadow: 0 50px 100px -20px rgb(0 0 0 / 0.75),
+                0 0 0 1px rgba(245, 158, 11, 0.2);
+    z-index: 200;
 }
 
 /* Keep the rest of the card stable */
@@ -874,9 +875,11 @@ async function sendPasswordResetEmail() {
 // ==================== NEW: POST DETAIL MODAL + LIKES + COMMENTS ====================
 
 let currentPostId = null;
+let modalPostId = null;     // ← Add this line
 
 async function openPostDetail(postId) {
     currentPostId = postId;
+    modalPostId = postId;
     const modal = document.getElementById('post-detail-modal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -976,10 +979,44 @@ async function toggleLike(postId, buttonElement) {
     }
 }
 
-async function toggleLikeInModal(postId, likeBtn) {
-    // Simple version - just reload modal after toggle
-    await toggleLike(postId, likeBtn);
-    await openPostDetail(postId);
+async function toggleLikeInModal(likeBtn) {
+    if (!currentUser || !modalPostId) {
+        closePostDetailModal();
+        showLoginModal();
+        return;
+    }
+
+    const countSpan = likeBtn.querySelector('span');
+    if (!countSpan) return;
+
+    const isCurrentlyLiked = likeBtn.classList.contains('liked');
+
+    try {
+        if (isCurrentlyLiked) {
+            // Unlike
+            await supabaseClient
+                .from('likes')
+                .delete()
+                .eq('post_id', modalPostId)
+                .eq('user_id', currentUser.id);
+
+            likeBtn.classList.remove('liked');
+            likeBtn.querySelector('i').classList.remove('text-amber-400');
+            countSpan.textContent = parseInt(countSpan.textContent) - 1;
+        } else {
+            // Like
+            await supabaseClient
+                .from('likes')
+                .insert({ post_id: modalPostId, user_id: currentUser.id });
+
+            likeBtn.classList.add('liked');
+            likeBtn.querySelector('i').classList.add('text-amber-400');
+            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+        }
+    } catch (error) {
+        console.error("Modal like error:", error);
+        alert("Failed to update like.");
+    }
 }
 
 async function loadComments(postId) {
