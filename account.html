@@ -47,7 +47,7 @@
 </nav>
 
 <!-- Page Content -->
-<div class="max-w-screen-md mx-auto px-8 pt-12 pb-20">
+<div class="max-w-screen-xl mx-auto px-8 pt-12 pb-20">
 
     <!-- Header -->
     <div class="mb-8">
@@ -55,64 +55,86 @@
         <p class="text-slate-400 mt-2">Manage your profile and security settings.</p>
     </div>
 
-    <!-- Unified Profile Box -->
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 mb-8">
-        <h3 class="text-xl font-semibold mb-6">Profile Information</h3>
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-        <!-- Username -->
-        <div class="flex items-center justify-between py-4 border-b border-slate-800">
-            <div>
-                <div class="text-sm text-slate-400">Username</div>
-                <div id="current-username" class="text-xl font-semibold text-emerald-400">Loading...</div>
+        <!-- LEFT COLUMN -->
+        <div class="lg:col-span-3 space-y-8">
+
+            <!-- Profile Information -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8">
+                <h3 class="text-xl font-semibold mb-6">Profile Information</h3>
+
+                <!-- Username -->
+                <div class="flex items-center justify-between py-4 border-b border-slate-800">
+                    <div>
+                        <div class="text-sm text-slate-400">Username</div>
+                        <div id="current-username" class="text-xl font-semibold text-emerald-400">Loading...</div>
+                    </div>
+                    <button onclick="editUsername()" 
+                            class="px-5 py-2 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
+                        <i class="fa-solid fa-edit mr-2"></i> Edit
+                    </button>
+                </div>
+
+                <!-- Email -->
+                <div class="flex items-center justify-between py-4 border-b border-slate-800">
+                    <div>
+                        <div class="text-sm text-slate-400">Email Address</div>
+                        <div id="current-email" class="text-lg text-slate-300">Loading...</div>
+                    </div>
+                    <button onclick="showChangeEmailModal()" 
+                            class="px-5 py-2 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
+                        <i class="fa-solid fa-edit mr-2"></i> Edit
+                    </button>
+                </div>
+
+                <!-- Password -->
+                <div class="flex items-center justify-between py-4">
+                    <div>
+                        <div class="text-sm text-slate-400">Password</div>
+                        <div class="text-slate-300">••••••••</div>
+                    </div>
+                    <a href="reset-password.html" 
+                       class="px-5 py-2 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors inline-flex items-center gap-x-2">
+                        <i class="fa-solid fa-key mr-2"></i> 
+                        <span>Reset Password</span>
+                    </a>
+                </div>
             </div>
-            <button onclick="editUsername()" 
-                    class="px-5 py-2 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
-                <i class="fa-solid fa-edit mr-2"></i> Edit
-            </button>
+
+            <!-- Danger Zone -->
+            <div class="bg-slate-900 border border-red-900/60 rounded-3xl p-8">
+                <div class="flex items-center gap-x-3 mb-3">
+                    <i class="fa-solid fa-exclamation-triangle text-red-400 text-xl"></i>
+                    <h3 class="text-xl font-semibold text-red-400">Danger Zone</h3>
+                </div>
+                <p class="text-slate-400 mb-6">These actions are permanent and cannot be undone.</p>
+
+                <button onclick="showDeletePostsModal()" 
+                        class="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-3xl transition-colors flex items-center gap-x-2">
+                    <i class="fa-solid fa-trash mr-2"></i>
+                    <span>Delete All My Posts & Comments</span>
+                </button>
+                <p class="text-xs text-slate-500 mt-2">This will permanently delete all your posts and every comment you have made.</p>
+            </div>
+
         </div>
 
-        <!-- Email -->
-        <div class="flex items-center justify-between py-4 border-b border-slate-800">
-            <div>
-                <div class="text-sm text-slate-400">Email Address</div>
-                <div id="current-email" class="text-lg text-slate-300">Loading...</div>
+        <!-- RIGHT COLUMN: Liked Posts -->
+        <div class="lg:col-span-2">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8">
+                <h3 class="text-xl font-semibold mb-6">Liked Posts</h3>
+                
+                <div id="liked-posts-container">
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fa-solid fa-heart text-3xl mb-3"></i>
+                        <p>Loading liked posts...</p>
+                    </div>
+                </div>
             </div>
-            <button onclick="showChangeEmailModal()" 
-                    class="px-5 py-2 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors">
-                <i class="fa-solid fa-edit mr-2"></i> Edit
-            </button>
         </div>
 
-        <!-- Password -->
-        <div class="flex items-center justify-between py-4">
-            <div>
-                <div class="text-sm text-slate-400">Password</div>
-                <div class="text-slate-300">••••••••</div>
-            </div>
-            <a href="reset-password.html" 
-               class="px-5 py-2 text-sm font-semibold bg-slate-800 hover:bg-slate-700 rounded-3xl transition-colors inline-flex items-center gap-x-2">
-                <i class="fa-solid fa-key mr-2"></i> 
-                <span>Reset Password</span>
-            </a>
-        </div>
     </div>
-
-    <!-- Danger Zone -->
-    <div class="bg-slate-900 border border-red-900/60 rounded-3xl p-8">
-        <div class="flex items-center gap-x-3 mb-3">
-            <i class="fa-solid fa-exclamation-triangle text-red-400 text-xl"></i>
-            <h3 class="text-xl font-semibold text-red-400">Danger Zone</h3>
-        </div>
-        <p class="text-slate-400 mb-6">These actions are permanent and cannot be undone.</p>
-
-        <button onclick="showDeletePostsModal()" 
-                class="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-3xl transition-colors flex items-center gap-x-2">
-            <i class="fa-solid fa-trash mr-2"></i>
-            <span>Delete All My Posts</span>
-        </button>
-        <p class="text-xs text-slate-500 mt-2">This will permanently delete every post you've made in the community.</p>
-    </div>
-
 </div>
 
 <!-- Change Email Modal -->
@@ -152,8 +174,8 @@
 
         <div class="text-center mb-6">
             <i class="fa-solid fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-            <h2 class="text-2xl font-semibold text-red-400">Delete All Posts?</h2>
-            <p class="text-slate-400 mt-2">This action is permanent. All your community posts will be deleted forever.</p>
+            <h2 class="text-2xl font-semibold text-red-400">Delete Everything?</h2>
+            <p class="text-slate-400 mt-2">This will permanently delete all your posts and all comments you have ever made.</p>
         </div>
 
         <div class="space-y-4">
@@ -170,10 +192,8 @@
         </div>
 
         <div class="flex gap-x-3 mt-8">
-            <button onclick="closeDeletePostsModal()" 
-                    class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold">Cancel</button>
-            <button onclick="confirmDeleteAllPosts()" 
-                    class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white rounded-3xl font-semibold">Delete All Posts</button>
+            <button onclick="closeDeletePostsModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold">Cancel</button>
+            <button onclick="confirmDeleteAllPosts()" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white rounded-3xl font-semibold">Delete Everything</button>
         </div>
     </div>
 </div>
@@ -204,6 +224,9 @@
         const username = user.user_metadata?.username || user.email.split('@')[0];
         document.getElementById('current-username').textContent = username;
         document.getElementById('current-email').textContent = user.email;
+
+        // Load liked posts
+        loadLikedPosts();
     }
 
     function updateNavbar(user) {
@@ -242,38 +265,109 @@
         if (chevron) chevron.classList.toggle('rotate-180');
     }
 
-async function editUsername() {
-    const newUsername = prompt("Enter your new username:");
-    if (!newUsername || newUsername.length < 3) {
-        alert("Username must be at least 3 characters long.");
-        return;
+    // ==================== LIKED POSTS ====================
+    async function loadLikedPosts() {
+        const container = document.getElementById('liked-posts-container');
+        if (!container || !currentUser) return;
+
+        container.innerHTML = `
+            <div class="text-center py-8 text-slate-500">
+                <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
+                <p>Loading liked posts...</p>
+            </div>
+        `;
+
+        try {
+            const { data: likes, error } = await supabaseClient
+                .from('likes')
+                .select(`
+                    post_id,
+                    posts (
+                        id,
+                        image_url,
+                        caption,
+                        created_at,
+                        profiles (username)
+                    )
+                `)
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            if (!likes || likes.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fa-solid fa-heart text-3xl mb-3"></i>
+                        <p>You haven't liked any posts yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `<div class="grid grid-cols-1 gap-4">`;
+
+            likes.forEach(like => {
+                const post = like.posts;
+                if (!post) return;
+
+                const username = post.profiles?.username || 'Unknown';
+                const date = new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                container.innerHTML += `
+                    <div onclick="window.location.href='community.html'" 
+                         class="bg-slate-800 border border-slate-700 rounded-2xl p-4 cursor-pointer hover:border-amber-500/50 transition-colors">
+                        <div class="flex gap-x-4">
+                            <img src="${post.image_url}" class="w-20 h-20 object-cover rounded-xl flex-shrink-0">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold text-sm">${username}</span>
+                                    <span class="text-xs text-slate-500">${date}</span>
+                                </div>
+                                <p class="text-sm text-slate-300 mt-1 line-clamp-2">${post.caption || ''}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML += `</div>`;
+
+        } catch (error) {
+            console.error("Error loading liked posts:", error);
+            container.innerHTML = `<div class="text-center py-8 text-red-400">Failed to load liked posts.</div>`;
+        }
     }
 
-    try {
-        // 1. Update the profiles table (this is what shows on posts)
-        const { error: profileError } = await supabaseClient
-            .from('profiles')
-            .update({ username: newUsername })
-            .eq('id', currentUser.id);
+    // ==================== EDIT USERNAME ====================
+    async function editUsername() {
+        const newUsername = prompt("Enter your new username:");
+        if (!newUsername || newUsername.length < 3) {
+            alert("Username must be at least 3 characters long.");
+            return;
+        }
 
-        if (profileError) throw profileError;
+        try {
+            const { error: profileError } = await supabaseClient
+                .from('profiles')
+                .update({ username: newUsername })
+                .eq('id', currentUser.id);
 
-        // 2. Also update auth metadata (so navbar + currentUser updates immediately)
-        const { error: authError } = await supabaseClient.auth.updateUser({
-            data: { username: newUsername }
-        });
+            if (profileError) throw profileError;
 
-        if (authError) throw authError;
+            const { error: authError } = await supabaseClient.auth.updateUser({
+                data: { username: newUsername }
+            });
 
-        // Update the page UI
-        document.getElementById('current-username').textContent = newUsername;
-        alert('Username updated successfully! All your posts will now show the new username.');
+            if (authError) throw authError;
 
-    } catch (error) {
-        console.error("Username update error:", error);
-        alert("Error updating username: " + error.message);
+            document.getElementById('current-username').textContent = newUsername;
+            alert('Username updated successfully!');
+
+        } catch (error) {
+            alert("Error updating username: " + error.message);
+        }
     }
-}
 
     function showChangeEmailModal() {
         document.getElementById('change-email-modal').classList.remove('hidden');
@@ -334,13 +428,12 @@ async function editUsername() {
         });
     }
 
-    // ==================== DELETE ALL POSTS ====================
+    // ==================== DELETE ALL POSTS + COMMENTS ====================
     function showDeletePostsModal() {
         const modal = document.getElementById('delete-posts-modal');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
 
-        // Pre-fill email
         if (currentUser) {
             document.getElementById('delete-email').value = currentUser.email;
         }
@@ -374,7 +467,13 @@ async function editUsername() {
                 return;
             }
 
-            // Delete all posts for this user
+            // 1. Delete all comments made by this user
+            await supabaseClient
+                .from('comments')
+                .delete()
+                .eq('user_id', currentUser.id);
+
+            // 2. Delete all posts made by this user
             const { error: deleteError } = await supabaseClient
                 .from('posts')
                 .delete()
@@ -382,12 +481,13 @@ async function editUsername() {
 
             if (deleteError) throw deleteError;
 
-            alert("All your posts have been successfully deleted.");
+            alert("All your posts and comments have been successfully deleted.");
             closeDeletePostsModal();
+            window.location.reload();
 
         } catch (error) {
             console.error(error);
-            alert("Error deleting posts: " + error.message);
+            alert("Error deleting content: " + error.message);
         }
     }
 
