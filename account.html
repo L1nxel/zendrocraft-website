@@ -307,29 +307,29 @@
 
             container.innerHTML = `<div class="grid grid-cols-1 gap-4">`;
 
-            likes.forEach(like => {
-                const post = like.posts;
-                if (!post) return;
+likes.forEach(like => {
+    const post = like.posts;
+    if (!post) return;
 
-                const username = post.profiles?.username || 'Unknown';
-                const date = new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const username = post.profiles?.username || 'Unknown';
+    const date = new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-                container.innerHTML += `
-                    <div onclick="window.location.href='community.html'" 
-                         class="bg-slate-800 border border-slate-700 rounded-2xl p-4 cursor-pointer hover:border-amber-500/50 transition-colors">
-                        <div class="flex gap-x-4">
-                            <img src="${post.image_url}" class="w-20 h-20 object-cover rounded-xl flex-shrink-0">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-semibold text-sm">${username}</span>
-                                    <span class="text-xs text-slate-500">${date}</span>
-                                </div>
-                                <p class="text-sm text-slate-300 mt-1 line-clamp-2">${post.caption || ''}</p>
-                            </div>
-                        </div>
+    container.innerHTML += `
+        <div onclick="window.location.href='community.html?post=${post.id}'" 
+             class="bg-slate-800 border border-slate-700 rounded-2xl p-4 cursor-pointer hover:border-amber-500/50 transition-colors">
+            <div class="flex gap-x-4">
+                <img src="${post.image_url}" class="w-20 h-20 object-cover rounded-xl flex-shrink-0">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-sm">${username}</span>
+                        <span class="text-xs text-slate-500">${date}</span>
                     </div>
-                `;
-            });
+                    <p class="text-sm text-slate-300 mt-1 line-clamp-2">${post.caption || ''}</p>
+                </div>
+            </div>
+        </div>
+    `;
+});
 
             container.innerHTML += `</div>`;
 

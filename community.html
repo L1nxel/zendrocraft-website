@@ -580,7 +580,8 @@ function initializeCommunityPage() {
     setTimeout(() => {
         updateNavbar();
         setupAuthListener();
-        loadCommunityPosts(); // ← Add this line
+        loadCommunityPosts();
+        checkForPostInUrl();   // ← Add this line
     }, 400);
 
     console.log('%c[Community] Page initialized.', 'color: #64748b');
@@ -1059,6 +1060,23 @@ async function submitComment() {
         await loadComments(modalPostId); // Refresh comments for current post
     } catch (error) {
         alert("Failed to post comment.");
+    }
+}
+
+// ==================== AUTO OPEN POST FROM URL ====================
+function checkForPostInUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('post');
+
+    if (postId) {
+        // Wait for posts to load, then open the modal
+        setTimeout(() => {
+            if (typeof openPostDetail === 'function') {
+                openPostDetail(postId);
+                // Clean the URL so it doesn't stay in the address bar
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }, 900); // Adjust timing if needed
     }
 }
 
