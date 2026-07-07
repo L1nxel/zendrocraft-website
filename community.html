@@ -19,29 +19,29 @@
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-/* === FULL CARD POP-OUT EFFECT === */
+/* === ONLY IMAGE POPS OUT OF THE BOX === */
 .post-card {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                box-shadow 0.3s ease,
-                z-index 0.1s ease;
+    position: relative;
+    z-index: 1;
+    overflow: visible; /* allow image to escape the card */
+}
+
+.post-image {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.3s ease;
     position: relative;
     z-index: 1;
 }
 
-.post-card:hover {
-    transform: translateY(-12px) scale(1.03);
-    box-shadow: 0 30px 70px -15px rgb(0 0 0 / 0.5), 
-                0 10px 20px -5px rgb(0 0 0 / 0.3);
+.post-card:hover .post-image {
+    transform: scale(1.12) translateY(-8px);
+    box-shadow: 0 30px 60px -15px rgb(0 0 0 / 0.6);
     z-index: 50;
 }
 
-/* Keep a nice image lift inside the card */
-.post-image {
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.post-card:hover .post-image {
-    transform: scale(1.05);
+/* Keep the rest of the card stable */
+.post-card:hover {
+    z-index: 2;
 }
 
 /* Like button styling */
@@ -893,7 +893,7 @@ async function openPostDetail(postId) {
         return;
     }
 
-    // Fill modal
+    // Fill modal content
     document.getElementById('modal-image').src = post.image_url;
     document.getElementById('modal-username').textContent = post.profiles?.username || 'Unknown';
     document.getElementById('modal-date').textContent = new Date(post.created_at).toLocaleDateString();
@@ -905,14 +905,22 @@ async function openPostDetail(postId) {
 
     await loadComments(postId);
 
-    // Setup like button in modal
+    // Setup like button in modal properly
     const likeBtn = document.getElementById('modal-like-btn');
     const isLiked = currentUser && post.likes?.some(l => l.user_id === currentUser.id);
-    
+
     likeBtn.innerHTML = `
         <i class="fa-solid fa-heart mr-2 ${isLiked ? 'text-amber-400' : ''}"></i>
         <span>${post.likes?.length || 0}</span>
     `;
+
+    // IMPORTANT: Add/remove the 'liked' class so toggleLike knows the current state
+    if (isLiked) {
+        likeBtn.classList.add('liked');
+    } else {
+        likeBtn.classList.remove('liked');
+    }
+
     likeBtn.onclick = () => toggleLikeInModal(postId, likeBtn);
 }
 
