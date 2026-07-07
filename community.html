@@ -197,7 +197,7 @@
     </div>
 
     <script>
-// ==================== LOAD AND DISPLAY POSTS ====================
+
 // ==================== LOAD AND DISPLAY POSTS (Enhanced) ====================
 async function loadCommunityPosts() {
     const grid = document.getElementById('posts-grid');
@@ -222,6 +222,7 @@ async function loadCommunityPosts() {
                 allow_comments,
                 profiles (username),
                 likes (user_id)
+                comments (id)
             `)
             .order('created_at', { ascending: false });
 
@@ -243,6 +244,7 @@ async function loadCommunityPosts() {
         posts.forEach(post => {
             const username = post.profiles?.username || 'Unknown';
             const likeCount = post.likes ? post.likes.length : 0;
+            const commentCount = post.comments ? post.comments.length : 0;
             const isLiked = currentUser && post.likes?.some(l => l.user_id === currentUser.id);
             const date = new Date(post.created_at).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
@@ -284,11 +286,12 @@ async function loadCommunityPosts() {
                                 <span class="like-count">${likeCount}</span>
                             </button>
 
-                            <button onclick="event.stopImmediatePropagation(); openPostDetail('${post.id}')"
-                                    class="flex items-center gap-x-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors">
-                                <i class="fa-solid fa-comment"></i>
-                                <span>Comment</span>
-                            </button>
+<button onclick="event.stopImmediatePropagation(); openPostDetail('${post.id}')"
+        class="flex items-center gap-x-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors">
+    <i class="fa-solid fa-comment"></i>
+    <span>Comment</span>
+    <span class="ml-1 text-xs text-slate-500">(${commentCount})</span>
+</button>
                         </div>
                     </div>
                 </div>
