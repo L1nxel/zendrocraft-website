@@ -19,30 +19,27 @@
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-/* === ONLY IMAGE POPS OUT OF THE BOX === */
+/* === WHOLE CARD LIFTS, IMAGE DOES NOT ZOOM === */
 .post-card {
-    position: relative;
-    z-index: 1;
-    overflow: visible; /* allow image to escape the card */
-}
-
-.post-image {
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                 box-shadow 0.3s ease;
     position: relative;
     z-index: 1;
 }
 
-.post-card:hover .post-image {
-    transform: scale(1.35) translateY(-14px);
-    box-shadow: 0 50px 100px -20px rgb(0 0 0 / 0.75),
-                0 0 0 1px rgba(245, 158, 11, 0.2);
-    z-index: 200;
+.post-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+    z-index: 10;
 }
 
-/* Keep the rest of the card stable */
-.post-card:hover {
-    z-index: 2;
+/* Image stays stable */
+.post-image {
+    transition: none;
+}
+
+.post-card:hover .post-image {
+    transform: none;
 }
 
 /* Like button styling */
@@ -880,13 +877,14 @@ let modalPostId = null;     // ← Add this line
 async function openPostDetail(postId) {
     currentPostId = postId;
     modalPostId = postId;
+
     const modal = document.getElementById('post-detail-modal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
 
     const { data: post, error } = await supabaseClient
         .from('posts')
-        .select(`*, profiles (username), likes (user_id)`)
+        .select(`*, profiles (username)`)
         .eq('id', postId)
         .single();
 
@@ -901,30 +899,12 @@ async function openPostDetail(postId) {
     document.getElementById('modal-username').textContent = post.profiles?.username || 'Unknown';
     document.getElementById('modal-date').textContent = new Date(post.created_at).toLocaleDateString();
     document.getElementById('modal-caption').textContent = post.caption || '';
-    document.getElementById('modal-like-count').textContent = post.likes?.length || 0;
 
     const avatar = document.getElementById('modal-username-avatar');
     avatar.textContent = (post.profiles?.username || 'U').charAt(0).toUpperCase();
 
+    // Load comments for THIS specific post
     await loadComments(postId);
-
-    // Setup like button in modal properly
-    const likeBtn = document.getElementById('modal-like-btn');
-    const isLiked = currentUser && post.likes?.some(l => l.user_id === currentUser.id);
-
-    likeBtn.innerHTML = `
-        <i class="fa-solid fa-heart mr-2 ${isLiked ? 'text-amber-400' : ''}"></i>
-        <span>${post.likes?.length || 0}</span>
-    `;
-
-    // IMPORTANT: Add/remove the 'liked' class so toggleLike knows the current state
-    if (isLiked) {
-        likeBtn.classList.add('liked');
-    } else {
-        likeBtn.classList.remove('liked');
-    }
-
-    likeBtn.onclick = () => toggleLikeInModal(postId, likeBtn);
 }
 
 function closePostDetailModal() {
@@ -1021,6 +1001,8 @@ async function toggleLikeInModal(likeBtn) {
 
 async function loadComments(postId) {
     const container = document.getElementById('comments-container');
+    if (!container) return;
+
     container.innerHTML = `<div class="text-center py-8 text-slate-500">Loading comments...</div>`;
 
     const { data: comments, error } = await supabaseClient
@@ -1031,13 +1013,17 @@ async function loadComments(postId) {
 
     if (error || !comments || comments.length === 0) {
         container.innerHTML = `<div class="text-center py-8 text-slate-500">No comments yet. Be the first!</div>`;
+        document.getElementById('modal-comment-count').textContent = '0 comments';
         return;
     }
 
     container.innerHTML = '';
+    document.getElementById('modal-comment-count').textContent = `${comments.length} comments`;
+
     comments.forEach(comment => {
         const username = comment.profiles?.username || 'Unknown';
         const date = new Date(comment.created_at).toLocaleDateString();
+
         container.innerHTML += `
             <div class="mb-4 pb-4 border-b border-slate-800 last:border-none">
                 <div class="flex items-center gap-x-2 mb-1">
@@ -1051,7 +1037,7 @@ async function loadComments(postId) {
 }
 
 async function submitComment() {
-    if (!currentUser || !currentPostId) {
+    if (!currentUser || !modalPostId) {
         alert("You must be logged in to comment.");
         return;
     }
@@ -1062,7 +1048,7 @@ async function submitComment() {
 
     try {
         const { error } = await supabaseClient.from('comments').insert({
-            post_id: currentPostId,
+            post_id: modalPostId,
             user_id: currentUser.id,
             content: content
         });
@@ -1070,7 +1056,7 @@ async function submitComment() {
         if (error) throw error;
 
         input.value = '';
-        await loadComments(currentPostId);
+        await loadComments(modalPostId); // Refresh comments for current post
     } catch (error) {
         alert("Failed to post comment.");
     }
@@ -1222,20 +1208,17 @@ async function submitComment() {
             <img id="modal-image" class="max-h-[420px] w-full object-contain rounded-2xl">
         </div>
 
-        <!-- Likes + Caption -->
-        <div class="px-6 py-4 border-b border-slate-800">
-            <div class="flex items-center gap-x-4 mb-3">
-                <button id="modal-like-btn" class="flex items-center gap-x-2 text-lg font-medium transition-colors">
-                    <i class="fa-solid fa-heart"></i>
-                    <span id="modal-like-count">0</span>
-                </button>
-                <div class="flex items-center gap-x-2 text-slate-400">
-                    <i class="fa-solid fa-comment"></i>
-                    <span id="modal-comment-count">0 comments</span>
-                </div>
-            </div>
-            <div id="modal-caption" class="text-slate-300"></div>
+<!-- Likes + Caption (Simplified) -->
+<div class="px-6 py-4 border-b border-slate-800">
+    <div class="flex items-center gap-x-3 mb-3">
+        <div class="flex items-center gap-x-2 text-slate-400">
+            <i class="fa-solid fa-comment"></i>
+            <span id="modal-comment-count">0 comments</span>
         </div>
+    </div>
+    
+    <div id="modal-caption" class="text-slate-300"></div>
+</div>
 
         <!-- Comments -->
         <div class="flex-1 overflow-y-auto px-6 py-4" id="comments-container"></div>
