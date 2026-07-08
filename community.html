@@ -228,41 +228,71 @@ async function loadCommunityPosts() {
         if (error) throw error;
 
         if (!posts || posts.length === 0) {
-            grid.innerHTML = `...`; // keep your existing empty state
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-16">
+                    <i class="fa-solid fa-images text-5xl text-slate-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">No posts yet</h3>
+                    <p class="text-slate-400">Be the first to share something with the community!</p>
+                </div>
+            `;
             return;
         }
-
-        const postIds = posts.map(p => p.id);
-
-        const { data: commentCounts } = await supabaseClient
-            .from('comments')
-            .select('post_id')
-            .in('post_id', postIds);
-
-        console.log('%c[DEBUG] Raw commentCounts from Supabase:', 'color:#f59e0b', commentCounts);
-
-        const commentCountMap = {};
-        if (commentCounts) {
-            commentCounts.forEach(c => {
-                commentCountMap[c.post_id] = (commentCountMap[c.post_id] || 0) + 1;
-            });
-        }
-
-        console.log('%c[DEBUG] Final commentCountMap:', 'color:#22c55e', commentCountMap);
 
         grid.innerHTML = '';
 
         posts.forEach(post => {
             const username = post.profiles?.username || 'Unknown';
             const likeCount = post.likes ? post.likes.length : 0;
-            const commentCount = commentCountMap[post.id] || 0;
             const isLiked = currentUser && post.likes?.some(l => l.user_id === currentUser.id);
             const date = new Date(post.created_at).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
             });
 
-            // ... rest of your postHTML stays exactly the same ...
-            const postHTML = `...`; // keep your existing card HTML
+            const postHTML = `
+                <div class="post-card bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden group">
+                    <!-- Image -->
+                    <div class="aspect-video bg-slate-950 overflow-hidden cursor-pointer" 
+                         onclick="openPostDetail('${post.id}')">
+                        <img src="${post.image_url}" 
+                             class="post-image w-full h-full object-cover"
+                             alt="Community post">
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-x-2">
+                                <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center text-sm font-bold">
+                                    ${username.charAt(0).toUpperCase()}
+                                </div>
+                                <span class="font-semibold">${username}</span>
+                            </div>
+                            <span class="text-xs text-slate-500">${date}</span>
+                        </div>
+
+                        ${post.caption ? `
+                            <p class="text-slate-300 text-sm leading-relaxed line-clamp-3 mb-4">
+                                ${post.caption}
+                            </p>
+                        ` : ''}
+
+                        <!-- Like + Comment Buttons -->
+                        <div class="flex items-center gap-x-4">
+                            <button onclick="event.stopImmediatePropagation(); toggleLike('${post.id}', this)"
+                                    class="like-btn flex items-center gap-x-1.5 text-sm font-medium transition-colors ${isLiked ? 'liked text-amber-400' : 'text-slate-400 hover:text-amber-400'}">
+                                <i class="fa-solid fa-heart"></i>
+                                <span class="like-count">${likeCount}</span>
+                            </button>
+
+                            <button onclick="event.stopImmediatePropagation(); openPostDetail('${post.id}')"
+                                    class="flex items-center gap-x-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                                <i class="fa-solid fa-comment"></i>
+                                <span>Comment</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
 
             grid.innerHTML += postHTML;
         });
