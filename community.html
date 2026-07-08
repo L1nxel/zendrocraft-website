@@ -222,7 +222,7 @@ async function loadCommunityPosts() {
                 allow_comments,
                 profiles (username),
                 likes (user_id),
-                comments (id)
+                comments(count)
             `)
             .order('created_at', { ascending: false });
 
