@@ -211,6 +211,7 @@ async function loadCommunityPosts() {
     `;
 
     try {
+        // Step 1: Get posts + likes (this part already works)
         const { data: posts, error } = await supabaseClient
             .from('posts')
             .select(`
@@ -221,8 +222,7 @@ async function loadCommunityPosts() {
                 allow_likes,
                 allow_comments,
                 profiles (username),
-                likes (user_id),
-                comments(count)
+                likes (user_id)
             `)
             .order('created_at', { ascending: false });
 
@@ -239,14 +239,28 @@ async function loadCommunityPosts() {
             return;
         }
 
+        // Step 2: Get comment counts for all these posts in one query
+        const postIds = posts.map(p => p.id);
+        
+        const { data: commentCounts } = await supabaseClient
+            .from('comments')
+            .select('post_id', { count: 'exact', head: false })
+            .in('post_id', postIds);
+
+        // Create a map of post_id → comment count
+        const commentCountMap = {};
+        if (commentCounts) {
+            commentCounts.forEach(c => {
+                commentCountMap[c.post_id] = (commentCountMap[c.post_id] || 0) + 1;
+            });
+        }
+
         grid.innerHTML = '';
 
         posts.forEach(post => {
             const username = post.profiles?.username || 'Unknown';
             const likeCount = post.likes ? post.likes.length : 0;
-            // Fixed: Make sure we safely get the comment count
-            const commentCount = post.comments?.[0]?.count || 0;
-                
+            const commentCount = commentCountMap[post.id] || 0;   // ← This is now reliable
             const isLiked = currentUser && post.likes?.some(l => l.user_id === currentUser.id);
             const date = new Date(post.created_at).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
@@ -254,7 +268,6 @@ async function loadCommunityPosts() {
 
             const postHTML = `
                 <div class="post-card bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden group">
-                    <!-- Image (click to open detail modal) -->
                     <div class="aspect-video bg-slate-950 overflow-hidden cursor-pointer" 
                          onclick="openPostDetail('${post.id}')">
                         <img src="${post.image_url}" 
@@ -262,7 +275,6 @@ async function loadCommunityPosts() {
                              alt="Community post">
                     </div>
 
-                    <!-- Content -->
                     <div class="p-5">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-x-2">
@@ -280,7 +292,6 @@ async function loadCommunityPosts() {
                             </p>
                         ` : ''}
 
-                        <!-- Like + Comment Buttons -->
                         <div class="flex items-center gap-x-4">
                             <button onclick="event.stopImmediatePropagation(); toggleLike('${post.id}', this)"
                                     class="like-btn flex items-center gap-x-1.5 text-sm font-medium transition-colors ${isLiked ? 'liked text-amber-400' : 'text-slate-400 hover:text-amber-400'}">
@@ -288,12 +299,12 @@ async function loadCommunityPosts() {
                                 <span class="like-count">${likeCount}</span>
                             </button>
 
-<button onclick="event.stopImmediatePropagation(); openPostDetail('${post.id}')"
-        class="flex items-center gap-x-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors">
-    <i class="fa-solid fa-comment"></i>
-    <span>Comment</span>
-    <span class="ml-1 text-xs text-slate-500">(${commentCount})</span>
-</button>
+                            <button onclick="event.stopImmediatePropagation(); openPostDetail('${post.id}')"
+                                    class="flex items-center gap-x-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                                <i class="fa-solid fa-comment"></i>
+                                <span>Comment</span>
+                                <span class="ml-1 text-xs text-slate-500">(${commentCount})</span>
+                            </button>
                         </div>
                     </div>
                 </div>
