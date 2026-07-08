@@ -245,9 +245,7 @@ async function loadCommunityPosts() {
             const username = post.profiles?.username || 'Unknown';
             const likeCount = post.likes ? post.likes.length : 0;
             // Fixed: Make sure we safely get the comment count
-            const commentCount = (post.comments && Array.isArray(post.comments)) 
-                ? post.comments.length 
-                : 0;
+            const commentCount = post.comments?.[0]?.count || 0;
                 
             const isLiked = currentUser && post.likes?.some(l => l.user_id === currentUser.id);
             const date = new Date(post.created_at).toLocaleDateString('en-US', {
