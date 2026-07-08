@@ -242,10 +242,13 @@ async function loadCommunityPosts() {
         // Step 2: Get comment counts for all these posts in one query
         const postIds = posts.map(p => p.id);
         
-        const { data: commentCounts } = await supabaseClient
+        const { data: commentCounts, count: totalCommentCount } = await supabaseClient
             .from('comments')
             .select('post_id', { count: 'exact', head: false })
             .in('post_id', postIds);
+
+        console.log('%c[DEBUG] commentCounts returned:', 'color: #3b82f6', commentCounts);
+        console.log('%c[DEBUG] Total comments found:', 'color: #3b82f6', totalCommentCount);
 
         // Create a map of post_id → comment count
         const commentCountMap = {};
@@ -254,6 +257,8 @@ async function loadCommunityPosts() {
                 commentCountMap[c.post_id] = (commentCountMap[c.post_id] || 0) + 1;
             });
         }
+
+        console.log('%c[DEBUG] Final commentCountMap:', 'color: #22c55e', commentCountMap);
 
         grid.innerHTML = '';
 
