@@ -240,7 +240,15 @@ async function loadCommunityPosts() {
             commentCounts = counts || [];
         }
 
-        console.log('%c[Step 1] commentCounts:', 'color: #3b82f6', commentCounts);
+console.log('%c[Step 1] commentCounts:', 'color: #3b82f6', commentCounts);
+
+        // === Step 2: Build a map of postId → comment count ===
+        const commentCountMap = {};
+        if (commentCounts && commentCounts.length > 0) {
+            commentCounts.forEach(c => {
+                commentCountMap[c.post_id] = (commentCountMap[c.post_id] || 0) + 1;
+            });
+        }
 
         if (!posts || posts.length === 0) {
             grid.innerHTML = `
@@ -258,6 +266,7 @@ async function loadCommunityPosts() {
         posts.forEach(post => {
             const username = post.profiles?.username || 'Unknown';
             const likeCount = post.likes ? post.likes.length : 0;
+            const commentCount = commentCountMap[post.id] || 0;
             const isLiked = currentUser && post.likes?.some(l => l.user_id === currentUser.id);
             const date = new Date(post.created_at).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
@@ -302,7 +311,7 @@ async function loadCommunityPosts() {
                             <button onclick="event.stopImmediatePropagation(); openPostDetail('${post.id}')"
                                     class="flex items-center gap-x-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors">
                                 <i class="fa-solid fa-comment"></i>
-                                <span>Comment</span>
+                                <span>Comment (${commentCount})</span>
                             </button>
                         </div>
                     </div>
