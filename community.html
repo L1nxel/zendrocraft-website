@@ -226,7 +226,15 @@ async function loadCommunityPosts() {
             .order('created_at', { ascending: false });
 
         if (error) throw error;
+        // === Step 1: Get comment counts (we'll use this later) ===
+        const postIds = posts.map(p => p.id);
 
+        const { data: commentCounts } = await supabaseClient
+            .from('comments')
+            .select('post_id')
+            .in('post_id', postIds);
+
+        console.log('%c[Step 1] commentCounts:', 'color: #3b82f6', commentCounts);
         if (!posts || posts.length === 0) {
             grid.innerHTML = `
                 <div class="col-span-full text-center py-16">
