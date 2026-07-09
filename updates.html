@@ -428,40 +428,34 @@ async function submitUpdate() {
     }
 
     let mediaUrls = [];
-    let uploadErrors = [];
 
-    // Upload all selected files
+    // Upload media files if any were selected
     if (mediaFiles.length > 0) {
         for (let file of mediaFiles) {
-            try {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${user.id}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-                const filePath = `updates/${fileName}`;
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${user.id}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `updates/${fileName}`;
 
-                const { error: uploadError } = await supabaseClient
-                    .storage
-                    .from('update-media')
-                    .upload(filePath, file);
+            const { error: uploadError } = await supabaseClient
+                .storage
+                .from('update-media')
+                .upload(filePath, file);
 
-                if (uploadError) {
-                    uploadErrors.push(file.name);
-                    continue; // Skip this file but continue with others
-                }
-
-                const { data: urlData } = supabaseClient
-                    .storage
-                    .from('update-media')
-                    .getPublicUrl(filePath);
-
-                mediaUrls.push(urlData.publicUrl);
-
-            } catch (err) {
-                uploadErrors.push(file.name);
+            if (uploadError) {
+                alert("Failed to upload media: " + uploadError.message);
+                return;
             }
+
+            const { data: urlData } = supabaseClient
+                .storage
+                .from('update-media')
+                .getPublicUrl(filePath);
+
+            mediaUrls.push(urlData.publicUrl);
         }
     }
 
-    // Insert the update
+    // Insert the update into the database
     const { error } = await supabaseClient.from('updates').insert({
         user_id: user.id,
         title,
@@ -475,13 +469,9 @@ async function submitUpdate() {
     if (error) {
         alert("Failed to post update: " + error.message);
     } else {
-        if (uploadErrors.length > 0) {
-            alert(`Update posted, but these files failed to upload: ${uploadErrors.join(', ')}`);
-        } else {
-            alert("Update posted successfully!");
-        }
+        alert("Update posted successfully!");
         closeUpdateModal();
-        loadUpdates();
+        loadUpdates(); // Refresh the list
     }
 }
 
