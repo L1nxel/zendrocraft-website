@@ -89,6 +89,8 @@
 </button>
             <p class="text-slate-400 text-lg mb-10">All the latest changes, features, and news from ZendroCraft.</p>
 
+<!-- Updates will load here -->
+<div id="updates-list" class="space-y-6"></div>
 
         </div>
     </div>
@@ -454,8 +456,66 @@ async function loadUpdates() {
     container.innerHTML = '';
 
     updates.forEach(update => {
-        // ... (the card HTML from before)
-        // Paste the full loop from my previous response if it's missing
+        const date = new Date(update.created_at).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric'
+        });
+
+        let mediaHTML = '';
+        if (update.media_urls && update.media_urls.length > 0) {
+            const first = update.media_urls[0];
+            if (first.endsWith('.mp4') || first.endsWith('.webm')) {
+                mediaHTML = `<video src="${first}" class="w-full rounded-2xl" controls></video>`;
+            } else {
+                mediaHTML = `<img src="${first}" class="w-full rounded-2xl object-cover">`;
+            }
+        }
+
+        let votesHTML = '';
+        if (update.vote_options && update.vote_options.length > 0) {
+            votesHTML = update.vote_options.map(opt => `
+                <button onclick="voteOnUpdate('${update.id}', '${opt}')"
+                        class="vote-btn px-4 py-1.5 text-sm rounded-2xl flex items-center gap-x-2">
+                    ${opt} <span class="font-mono text-xs">(0)</span>
+                </button>
+            `).join('');
+        }
+
+        const html = `
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <div class="flex items-center gap-x-3">
+                            <span class="font-semibold text-xl">${update.title}</span>
+                            ${update.version ? `<span class="px-3 py-1 text-xs bg-slate-800 text-amber-400 rounded-2xl">${update.version}</span>` : ''}
+                        </div>
+                        <div class="text-xs text-slate-500 mt-1">${date}</div>
+                    </div>
+                    ${update.posted_by ? `<div class="text-sm text-slate-400">Posted by <span class="text-amber-400">${update.posted_by}</span></div>` : ''}
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                        <div class="text-slate-300 whitespace-pre-line">${update.content || ''}</div>
+                        
+                        ${votesHTML ? `
+                            <div class="mt-6">
+                                <div class="text-sm text-slate-400 mb-2">Was this update good?</div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${votesHTML}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${mediaHTML ? `
+                        <div class="lg:col-span-1">
+                            ${mediaHTML}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        container.innerHTML += html;
     });
 }
 
