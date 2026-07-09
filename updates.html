@@ -370,15 +370,20 @@ async function sendPasswordResetEmail() {
 // ==================== ADMIN UPDATES SYSTEM ====================
 
 async function checkIfAdmin() {
-    const { data: { user } } = await supabaseClient.auth.getUser();
     const adminBtn = document.getElementById('admin-post-btn');
-    
     if (!adminBtn) return;
 
-    if (user && user.email === 'ZendroCraftAdmin@gmail.com') {
-        adminBtn.style.display = 'flex';
-        adminBtn.classList.remove('hidden');
-    } else {
+    try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+
+        if (user && user.email === 'ZendroCraftAdmin@gmail.com') {
+            adminBtn.style.display = 'flex';
+            adminBtn.classList.remove('hidden');
+        } else {
+            adminBtn.style.display = 'none';
+        }
+    } catch (err) {
+        console.error("Admin check failed:", err);
         adminBtn.style.display = 'none';
     }
 }
@@ -431,11 +436,24 @@ async function submitUpdate() {
     }
 }
 
-// Initialize everything on page load
-setTimeout(async () => {
-    await loadUpdates();      // Load updates from Supabase
-    await checkIfAdmin();     // Show Post button only for admin
-}, 600);
+// Better initialization
+async function initializePage() {
+    await loadUpdates();
+    await checkIfAdmin();
+
+    // Also listen for auth changes (in case user logs in/out)
+    supabaseClient.auth.onAuthStateChange(() => {
+        checkIfAdmin();
+    });
+}
+
+window.onload = function() {
+    initSupabase();
+    setTimeout(() => {
+        updateNavbar();
+        initializePage();
+    }, 500);
+};
 
 async function loadUpdates() {
     const container = document.getElementById('updates-list');
