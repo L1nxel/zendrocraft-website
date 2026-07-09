@@ -523,15 +523,29 @@ async function loadUpdates() {
             month: 'short', day: 'numeric', year: 'numeric'
         });
 
-        let mediaHTML = '';
-        if (update.media_urls && update.media_urls.length > 0) {
-            const first = update.media_urls[0];
-            if (first.endsWith('.mp4') || first.endsWith('.webm')) {
-                mediaHTML = `<video src="${first}" class="w-full rounded-2xl" controls></video>`;
-            } else {
-                mediaHTML = `<img src="${first}" class="w-full rounded-2xl object-cover">`;
-            }
+let mediaHTML = '';
+if (update.media_urls && update.media_urls.length > 0) {
+    mediaHTML = `<div class="grid grid-cols-1 gap-3 mt-4">`;
+    
+    update.media_urls.forEach(url => {
+        const isVideo = url.endsWith('.mp4') || 
+                        url.endsWith('.webm') || 
+                        url.endsWith('.mov') || 
+                        url.endsWith('.avi');
+
+        if (isVideo) {
+            mediaHTML += `
+                <video src="${url}" class="w-full rounded-2xl" controls></video>
+            `;
+        } else {
+            mediaHTML += `
+                <img src="${url}" class="w-full rounded-2xl object-cover">
+            `;
         }
+    });
+    
+    mediaHTML += `</div>`;
+}
 
         let votesHTML = '';
         if (update.vote_options && update.vote_options.length > 0) {
