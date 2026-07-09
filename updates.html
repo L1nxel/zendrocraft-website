@@ -419,6 +419,7 @@ async function submitUpdate() {
     const postedBy = document.getElementById('posted-by').value.trim();
     const voteOptionsRaw = document.getElementById('vote-options').value.trim();
     const voteOptions = voteOptionsRaw ? voteOptionsRaw.split('\n').filter(Boolean) : [];
+    const mediaFiles = document.getElementById('update-media').files;
 
     if (!title) {
         alert("Title is required");
@@ -427,12 +428,40 @@ async function submitUpdate() {
 
     const { data: { user } } = await supabaseClient.auth.getUser();
 
-    // Use the same check as checkIfAdmin()
     if (!user || user.email?.toLowerCase() !== 'zendrocraftadmin@gmail.com') {
         alert("Only the admin can post updates.");
         return;
     }
 
+    let mediaUrls = [];
+
+    // Upload media files if any were selected
+    if (mediaFiles.length > 0) {
+        for (let file of mediaFiles) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${user.id}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `updates/${fileName}`;
+
+            const { error: uploadError } = await supabaseClient
+                .storage
+                .from('update-media')
+                .upload(filePath, file);
+
+            if (uploadError) {
+                alert("Failed to upload media: " + uploadError.message);
+                return;
+            }
+
+            const { data: urlData } = supabaseClient
+                .storage
+                .from('update-media')
+                .getPublicUrl(filePath);
+
+            mediaUrls.push(urlData.publicUrl);
+        }
+    }
+
+    // Insert the update into the database
     const { error } = await supabaseClient.from('updates').insert({
         user_id: user.id,
         title,
@@ -440,7 +469,7 @@ async function submitUpdate() {
         content,
         posted_by: postedBy,
         vote_options: voteOptions,
-        media_urls: []
+        media_urls: mediaUrls
     });
 
     if (error) {
@@ -533,7 +562,7 @@ async function loadUpdates() {
                         
                         ${votesHTML ? `
                             <div class="mt-6">
-                                <div class="text-sm text-slate-400 mb-2">Was this update good?</div>
+                                <div class="text-sm text-slate-400 mb-2">Vote Section:</div>
                                 <div class="flex flex-wrap gap-2">
                                     ${votesHTML}
                                 </div>
