@@ -80,6 +80,13 @@
     <div class="max-w-screen-xl mx-auto px-8 py-12">
         <div class="max-w-3xl">
             <h1 class="text-5xl font-display font-semibold tracking-tighter mb-2">Server Updates</h1>
+<!-- Admin Post Button (only visible to admin) -->
+<button id="admin-post-btn"
+        onclick="showUpdateModal()"
+        class="hidden mt-4 items-center gap-x-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-500 rounded-3xl text-sm font-semibold transition-all">
+    <i class="fa-solid fa-plus mr-2"></i>
+    Post New Update
+</button>
             <p class="text-slate-400 text-lg mb-10">All the latest changes, features, and news from ZendroCraft.</p>
 
             <!-- Update Entry -->
@@ -386,7 +393,77 @@ async function sendPasswordResetEmail() {
         alert("Something went wrong. Please try again.");
     }
 }
+
+// ==================== ADMIN UPDATES SYSTEM ====================
+
+async function checkIfAdmin() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const adminBtn = document.getElementById('admin-post-btn');
+    
+    if (user && user.email === 'ZendroCraftAdmin@gmail.com') {
+        adminBtn.classList.remove('hidden');
+        adminBtn.classList.add('flex');
+    } else {
+        adminBtn.classList.add('hidden');
+        adminBtn.classList.remove('flex');
+    }
+}
+
+function showUpdateModal() {
+    document.getElementById('update-modal').classList.remove('hidden');
+    document.getElementById('update-modal').classList.add('flex');
+}
+
+function closeUpdateModal() {
+    document.getElementById('update-modal').classList.remove('flex');
+    document.getElementById('update-modal').classList.add('hidden');
+}
+
+async function submitUpdate() {
+    const title = document.getElementById('update-title').value.trim();
+    const version = document.getElementById('update-version').value.trim();
+    const content = document.getElementById('update-content').value.trim();
+    const postedBy = document.getElementById('posted-by').value.trim();
+    const voteOptionsRaw = document.getElementById('vote-options').value.trim();
+    const voteOptions = voteOptionsRaw ? voteOptionsRaw.split('\n').filter(Boolean) : [];
+
+    if (!title) {
+        alert("Title is required");
+        return;
+    }
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user || user.email !== 'ZendroCraftAdmin@gmail.com') {
+        alert("Only the admin can post updates.");
+        return;
+    }
+
+    const { error } = await supabaseClient.from('updates').insert({
+        user_id: user.id,
+        title,
+        version,
+        content,
+        posted_by: postedBy,
+        vote_options: voteOptions,
+        media_urls: []
+    });
+
+    if (error) {
+        alert("Failed to post update: " + error.message);
+    } else {
+        alert("Update posted!");
+        closeUpdateModal();
+        // You can add loadUpdates() here later when we make the list dynamic
+    }
+}
+
+// Call this on page load
+setTimeout(() => {
+    checkIfAdmin();
+}, 600);
+
 </script>
+
     <!-- Login / Register Modal -->
     <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
@@ -489,6 +566,53 @@ async function sendPasswordResetEmail() {
                     class="text-sm text-slate-400 hover:text-white">
                 Back to Login
             </button>
+        </div>
+    </div>
+</div>
+<!-- Admin Update Modal -->
+<div id="update-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold">Post New Update</h2>
+            <button onclick="closeUpdateModal()" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+        </div>
+
+        <div class="space-y-5">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-sm text-slate-400">Update Name</label>
+                    <input type="text" id="update-title" class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Version</label>
+                    <input type="text" id="update-version" class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-sm text-slate-400">What's New (Bullet Points)</label>
+                <textarea id="update-content" rows="5" class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500"></textarea>
+            </div>
+
+            <div>
+                <label class="text-sm text-slate-400">Images / Videos (Multiple)</label>
+                <input type="file" id="update-media" multiple accept="image/*,video/*" class="mt-1 block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-2xl file:border-0 file:bg-slate-800 file:text-white hover:file:bg-slate-700">
+            </div>
+
+            <div>
+                <label class="text-sm text-slate-400">Vote Options (one per line)</label>
+                <textarea id="vote-options" rows="3" class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500"></textarea>
+            </div>
+
+            <div>
+                <label class="text-sm text-slate-400">Posted By</label>
+                <input type="text" id="posted-by" class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+            </div>
+        </div>
+
+        <div class="flex gap-x-3 mt-8">
+            <button onclick="closeUpdateModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold">Cancel</button>
+            <button onclick="submitUpdate()" class="flex-1 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold">Post Update</button>
         </div>
     </div>
 </div>
