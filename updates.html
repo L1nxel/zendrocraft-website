@@ -89,41 +89,12 @@
 </button>
             <p class="text-slate-400 text-lg mb-10">All the latest changes, features, and news from ZendroCraft.</p>
 
-            <!-- Update Entry -->
-            <div class="mb-10 border-l-4 border-amber-500 pl-6">
-                <div class="flex items-center gap-x-3 mb-2">
-                    <span class="font-semibold text-lg">v1.4.2 - The Big Economy Update</span>
-                    <span class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-2xl">Jan 28, 2026</span>
-                </div>
-                <div class="prose prose-invert text-slate-300 text-[15px]">
-                    <ul class="list-disc pl-5 space-y-1.5">
-                        <li>Added new jobs system with 6 different professions</li>
-                        <li>Completely reworked the shop and auction house</li>
-                        <li>Added daily login rewards</li>
-                        <li>Fixed major lag issues during peak hours</li>
-                        <li>New custom enchantments: Auto-Smelt, Veinminer, and more</li>
-                    </ul>
-                </div>
-                <div class="mt-4 text-xs text-slate-500">Posted by <span class="text-slate-400">Admin • Zendro</span></div>
-            </div>
 
-            <div class="mb-10 border-l-4 border-amber-500 pl-6">
-                <div class="flex items-center gap-x-3 mb-2">
-                    <span class="font-semibold text-lg">v1.4.1 - Quality of Life Patch</span>
-                    <span class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-2xl">Jan 15, 2026</span>
-                </div>
-                <div class="prose prose-invert text-slate-300 text-[15px]">
-                    <ul class="list-disc pl-5 space-y-1.5">
-                        <li>Improved server performance by ~35%</li>
-                        <li>Fixed several bugs with claim protection</li>
-                        <li>Added /spawn and /home commands</li>
-                        <li>New player tutorial system</li>
-                    </ul>
-                </div>
-            </div>
         </div>
     </div>
+
 <script>
+
     // ==================== SUPABASE + DYNAMIC NAVBAR ====================
     const SUPABASE_URL = 'https://syipxmhmpyqbxwjhyjhn.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5aXB4bWhtcHlxYnh3amh5amhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTg0OTAsImV4cCI6MjA5ODc3NDQ5MH0.38rPtmkqSSSozJeRqP4eF8MK3vKitzcPULzFyeBlbms'; // ← Paste your real Legacy anon key here
@@ -400,12 +371,13 @@ async function checkIfAdmin() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     const adminBtn = document.getElementById('admin-post-btn');
     
+    if (!adminBtn) return;
+
     if (user && user.email === 'ZendroCraftAdmin@gmail.com') {
+        adminBtn.style.display = 'flex';
         adminBtn.classList.remove('hidden');
-        adminBtn.classList.add('flex');
     } else {
-        adminBtn.classList.add('hidden');
-        adminBtn.classList.remove('flex');
+        adminBtn.style.display = 'none';
     }
 }
 
@@ -457,10 +429,35 @@ async function submitUpdate() {
     }
 }
 
-// Call this on page load
-setTimeout(() => {
-    checkIfAdmin();
+// Initialize everything on page load
+setTimeout(async () => {
+    await loadUpdates();      // Load updates from Supabase
+    await checkIfAdmin();     // Show Post button only for admin
 }, 600);
+
+async function loadUpdates() {
+    const container = document.getElementById('updates-list');
+    if (!container) return;
+
+    container.innerHTML = `<div class="text-center py-12 text-slate-500">Loading updates...</div>`;
+
+    const { data: updates, error } = await supabaseClient
+        .from('updates')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error || !updates || updates.length === 0) {
+        container.innerHTML = `<div class="text-center py-12 text-slate-500">No updates yet.</div>`;
+        return;
+    }
+
+    container.innerHTML = '';
+
+    updates.forEach(update => {
+        // ... (the card HTML from before)
+        // Paste the full loop from my previous response if it's missing
+    });
+}
 
 </script>
 
