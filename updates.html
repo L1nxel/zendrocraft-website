@@ -367,26 +367,40 @@ async function sendPasswordResetEmail() {
     }
 }
 
-// ==================== ADMIN UPDATES SYSTEM ====================
-
+// ==================== ADMIN CHECK (More Reliable) ====================
 async function checkIfAdmin() {
     const adminBtn = document.getElementById('admin-post-btn');
     if (!adminBtn) return;
 
-    try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
+    // Wait a bit to make sure auth is ready
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-        if (user && user.email === 'ZendroCraftAdmin@gmail.com') {
-            adminBtn.style.display = 'flex';
-            adminBtn.classList.remove('hidden');
-        } else {
-            adminBtn.style.display = 'none';
-        }
-    } catch (err) {
-        console.error("Admin check failed:", err);
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    console.log("Logged in user email:", user?.email); // Temporary debug
+
+    if (user && user.email?.toLowerCase() === 'zendrocraf tadmin@gmail.com') {
+        adminBtn.style.display = 'flex';
+        adminBtn.classList.remove('hidden');
+    } else {
         adminBtn.style.display = 'none';
     }
 }
+
+// ==================== INITIALIZE PAGE ====================
+async function initializeUpdatesPage() {
+    await loadUpdates();
+    await checkIfAdmin();
+}
+
+window.onload = function() {
+    initSupabase();
+    
+    setTimeout(() => {
+        updateNavbar();
+        initializeUpdatesPage();
+    }, 600);
+};
 
 function showUpdateModal() {
     document.getElementById('update-modal').classList.remove('hidden');
