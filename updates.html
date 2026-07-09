@@ -83,9 +83,9 @@
 <!-- Admin Post Button (only visible to admin) -->
 <button id="admin-post-btn"
         onclick="showUpdateModal()"
-        class="hidden mt-4 items-center gap-x-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-500 rounded-3xl text-sm font-semibold transition-all">
-    <i class="fa-solid fa-plus mr-2"></i>
-    Post New Update
+        class="hidden mt-4 items-center gap-x-2 px-6 py-3 bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-3xl font-semibold transition-all">
+    <i class="fa-solid fa-plus text-amber-400"></i>
+    <span class="text-white">Post New Update</span>
 </button>
             <p class="text-slate-400 text-lg mb-10">All the latest changes, features, and news from ZendroCraft.</p>
 
@@ -426,7 +426,9 @@ async function submitUpdate() {
     }
 
     const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user || user.email !== 'ZendroCraftAdmin@gmail.com') {
+
+    // Use the same check as checkIfAdmin()
+    if (!user || user.email?.toLowerCase() !== 'zendrocraftadmin@gmail.com') {
         alert("Only the admin can post updates.");
         return;
     }
@@ -444,9 +446,9 @@ async function submitUpdate() {
     if (error) {
         alert("Failed to post update: " + error.message);
     } else {
-        alert("Update posted!");
+        alert("Update posted successfully!");
         closeUpdateModal();
-        // You can add loadUpdates() here later when we make the list dynamic
+        loadUpdates(); // Refresh the list
     }
 }
 
