@@ -218,13 +218,6 @@ let isCurrentUserAdmin = false;
         });
     }
 
-    // Initialize everything
-    window.onload = function() {
-        initSupabase();
-        setTimeout(() => {
-            updateNavbar();
-        }, 400);
-    }
 
 // ==================== LOGGED OUT DROPDOWN (Reliable Version) ====================
 function toggleLoggedOutDropdown(event) {
@@ -503,13 +496,6 @@ async function initializePage() {
     });
 }
 
-window.onload = function() {
-    initSupabase();
-    setTimeout(() => {
-        updateNavbar();
-        initializePage();
-    }, 500);
-};
 
 async function deleteUpdate(updateId, event) {
     event.stopImmediatePropagation(); // Prevent card click if any
@@ -554,7 +540,88 @@ async function loadUpdates() {
             month: 'short', day: 'numeric', year: 'numeric'
         });
 
-let mediaHTML = '';
+        let mediaHTML = '';
+        if (update.media_urls && update.media_urls.length > 0) {
+            mediaHTML = `<div class="grid grid-cols-1 gap-3 mt-4">`;
+            
+            update.media_urls.forEach(url => {
+                const isVideo = url.endsWith('.mp4') || 
+                                url.endsWith('.webm') || 
+                                url.endsWith('.mov') || 
+                                url.endsWith('.avi');
+
+                if (isVideo) {
+                    mediaHTML += `<video src="${url}" class="w-full rounded-2xl" controls></video>`;
+                } else {
+                    mediaHTML += `<img src="${url}" class="w-full rounded-2xl object-cover">`;
+                }
+            });
+            
+            mediaHTML += `</div>`;
+        }
+
+        let votesHTML = '';
+        if (update.vote_options && update.vote_options.length > 0) {
+            votesHTML = update.vote_options.map(opt => `
+                <button onclick="voteOnUpdate('${update.id}', '${opt}')"
+                        class="vote-btn px-4 py-1.5 text-sm rounded-2xl flex items-center gap-x-2">
+                    ${opt} <span class="font-mono text-xs">(0)</span>
+                </button>
+            `).join('');
+        }
+
+        const html = `
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <div class="flex items-center gap-x-3">
+                            <span class="font-semibold text-xl">${update.title}</span>
+                            ${update.version ? `<span class="px-3 py-1 text-xs bg-slate-800 text-amber-400 rounded-2xl">${update.version}</span>` : ''}
+                        </div>
+                        <div class="text-xs text-slate-500 mt-1">${date}</div>
+                    </div>
+
+                    <div class="flex items-center gap-x-2">
+                        ${update.posted_by ? `<div class="text-sm text-slate-400">Posted by <span class="text-amber-400">${update.posted_by}</span></div>` : ''}
+                        
+                        ${isCurrentUserAdmin ? `
+                            <button onclick="deleteUpdate('${update.id}', event)"
+                                    class="text-red-400 hover:text-red-500 p-2 rounded-xl hover:bg-red-500/10 transition-colors"
+                                    title="Delete Update">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <!-- Content + Media -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                        <div class="text-slate-300 whitespace-pre-line">${update.content || ''}</div>
+                        
+                        ${votesHTML ? `
+                            <div class="mt-6">
+                                <div class="text-sm text-slate-400 mb-2">Vote Section:</div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${votesHTML}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${mediaHTML ? `
+                        <div class="lg:col-span-1">
+                            ${mediaHTML}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        container.innerHTML += html;
+    });
+}
+
 if (update.media_urls && update.media_urls.length > 0) {
     mediaHTML = `<div class="grid grid-cols-1 gap-3 mt-4">`;
     
