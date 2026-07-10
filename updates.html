@@ -39,9 +39,10 @@
                     <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
                 </div>
 
-                <!-- Dynamic Auth Section -->
-                <div class="relative" id="nav-auth-section"></div>
-            </div>
+<!-- Dynamic Auth Section -->
+<div class="relative" id="nav-auth-section">
+    <!-- Content controlled by JavaScript -->
+</div>
         </div>
     </div>
 </nav>
@@ -126,6 +127,10 @@ function initSupabase() {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
+
+
+// ==================== DYNAMIC NAVBAR ====================
+
 async function updateNavbar() {
     const navSection = document.getElementById('nav-auth-section');
     if (!navSection) return;
@@ -199,8 +204,14 @@ function toggleLoggedOutDropdown(event) {
     event.stopImmediatePropagation();
     const dropdown = document.getElementById('loggedout-dropdown');
     const chevron = document.getElementById('loggedout-chevron');
-    if (dropdown) dropdown.classList.toggle('hidden');
-    if (chevron) chevron.classList.toggle('rotate-180');
+
+    if (dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+    } else {
+        dropdown.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180');
+    }
 }
 
 function hideLoggedOutDropdown() {
@@ -214,14 +225,23 @@ function toggleUserDropdown(event) {
     event.stopImmediatePropagation();
     const dropdown = document.getElementById('user-dropdown');
     const chevron = document.getElementById('user-chevron');
-    if (dropdown) dropdown.classList.toggle('hidden');
-    if (chevron) chevron.classList.toggle('rotate-180');
+
+    if (dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+    } else {
+        dropdown.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180');
+    }
 }
 
 async function logoutUser() {
     await supabaseClient.auth.signOut();
     window.location.reload();
 }
+// ==================== END OF DYNAMIC NAVBAR ====================
+
+
 
 function copyServerIP() {
     navigator.clipboard.writeText('Play.ZendroCraft.Com').then(() => {
@@ -415,7 +435,172 @@ window.onload = function() {
         initializeUpdatesPage();
     }, 600);
 };
+
+
+
+function showLoginModal() {
+    document.getElementById('auth-modal').classList.remove('hidden');
+    document.getElementById('auth-modal').classList.add('flex');
+    document.getElementById('login-form').classList.remove('hidden');
+    document.getElementById('register-form').classList.add('hidden');
+    document.getElementById('modal-title').textContent = 'Login';
+}
+
+function showRegisterModal() {
+    document.getElementById('auth-modal').classList.remove('hidden');
+    document.getElementById('auth-modal').classList.add('flex');
+    document.getElementById('register-form').classList.remove('hidden');
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('modal-title').textContent = 'Create Account';
+}
+
+function closeAuthModal() {
+    const modal = document.getElementById('auth-modal');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+}
+
+function switchToRegister() {
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('register-form').classList.remove('hidden');
+    document.getElementById('modal-title').textContent = 'Create Account';
+}
+
+function switchToLogin() {
+    document.getElementById('register-form').classList.add('hidden');
+    document.getElementById('login-form').classList.remove('hidden');
+    document.getElementById('modal-title').textContent = 'Login';
+}
+
+async function loginUser() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    if (!email || !password) {
+        alert('Please enter both email and password.');
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+    });
+
+    if (error) {
+        alert('Error: ' + error.message);
+    } else {
+        alert('Logged in successfully!');
+        closeAuthModal();
+        window.location.reload();
+    }
+}
+
+async function registerUser() {
+    const username = document.getElementById('register-username').value.trim();
+    const email = document.getElementById('register-email').value.trim();
+    const password = document.getElementById('register-password').value;
+
+    if (!username || !email || !password) {
+        alert('Please fill in username, email, and password.');
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            data: { username: username }
+        }
+    });
+
+    if (error) {
+        alert('Error: ' + error.message);
+    } else {
+        alert('Account created! You can now log in.');
+        closeAuthModal();
+    }
+}
+
+
+
+
 </script>
+
+
+
+<!-- Login / Register Modal -->
+<div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
+        
+        <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-times text-xl"></i>
+        </button>
+
+        <h2 class="text-2xl font-semibold mb-6" id="modal-title">Login</h2>
+
+        <!-- Login Form -->
+        <div id="login-form">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm text-slate-400">Email</label>
+                    <input type="email" id="login-email" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Password</label>
+                    <input type="password" id="login-password" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+                <button onclick="loginUser()" 
+                        class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold mt-2">
+                    Log In
+                </button>
+                <div class="text-center mt-3">
+                    <button onclick="showForgotPasswordModal()" 
+                            class="text-sm text-slate-400 hover:text-amber-400 transition-colors">
+                        Forgot your password?
+                    </button>
+                </div>
+            </div>
+            <p class="text-center text-sm text-slate-400 mt-4">
+                Don't have an account? 
+                <span onclick="switchToRegister()" class="text-amber-400 hover:underline cursor-pointer">Register here</span>
+            </p>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form" class="hidden">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm text-slate-400">Username</label>
+                    <input type="text" id="register-username" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500"
+                           placeholder="GamerBoi">
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Email</label>
+                    <input type="email" id="register-email" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Password</label>
+                    <input type="password" id="register-password" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+                <button onclick="registerUser()" 
+                        class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold mt-2">
+                    Create Account
+                </button>
+            </div>
+            <p class="text-center text-sm text-slate-400 mt-4">
+                Already have an account? 
+                <span onclick="switchToLogin()" class="text-amber-400 hover:underline cursor-pointer">Log in here</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+
 
 </body>
 </html>
