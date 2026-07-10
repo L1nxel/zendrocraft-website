@@ -10,11 +10,19 @@
     <style>
         body { font-family: 'Inter', system_ui, sans-serif; }
         .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+        
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200">
 
-<!-- Navbar (Same as Homepage) -->
+<!-- Navbar -->
 <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
     <div class="max-w-screen-xl mx-auto">
         <div class="px-8 py-5 flex items-center justify-between">
@@ -24,7 +32,6 @@
             </div>
 
             <div class="flex items-center gap-x-4">
-                <!-- Server IP -->
                 <div onclick="copyServerIP()" 
                      class="hidden md:flex items-center gap-x-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-colors rounded-3xl cursor-pointer group">
                     <div class="flex items-center gap-x-2">
@@ -44,84 +51,109 @@
 </nav>
 
 <!-- Page Header -->
-<div class="max-w-screen-xl mx-auto px-8 pt-12 pb-8">
-    <div class="max-w-2xl">
-        <h1 class="text-5xl font-display font-semibold tracking-tighter mb-3">Server Features</h1>
-        <p class="text-xl text-slate-400">Everything that makes ZendroCraft unique.</p>
+<div class="max-w-screen-xl mx-auto px-8 pt-12 pb-6">
+    <div class="max-w-3xl">
+        <h1 class="text-5xl font-display font-semibold tracking-tighter mb-4 text-white">Server Features</h1>
+        <p class="text-xl text-slate-400">
+            Discover what makes ZendroCraft special. From our expanding world to unique gameplay systems.
+        </p>
     </div>
 </div>
 
-<!-- Server Features Content -->
+<!-- Server Features -->
 <div class="max-w-screen-xl mx-auto px-8 pb-20 space-y-8">
 
-    <!-- Feature 1: World Border -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8">
+    <!-- Feature 1: Expanding World Border -->
+    <div class="feature-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-8">
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+            
+            <!-- Image Placeholder -->
             <div class="lg:col-span-2">
-                <div class="aspect-video bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center">
+                <div class="aspect-video bg-slate-950 border border-slate-700 rounded-2xl flex items-center justify-center">
                     <div class="text-center">
-                        <i class="fa-solid fa-globe fa-3x text-emerald-400 mb-3"></i>
+                        <i class="fa-solid fa-globe fa-3x text-amber-400 mb-4"></i>
                         <p class="text-sm text-slate-400">World Border Preview<br><span class="text-xs">(Coming Soon)</span></p>
                     </div>
                 </div>
             </div>
-            
-            <div class="lg:col-span-1 text-center lg:text-left">
-                <h3 class="text-2xl font-semibold mb-3">Expanding World Border</h3>
-                <p class="text-slate-400">
-                    Players can pay in-game cash to expand the worldborder. The more you contribute, the bigger the world becomes for everyone.
+
+            <div class="lg:col-span-3">
+                <div class="flex items-center gap-x-3 mb-4">
+                    <i class="fa-solid fa-globe text-amber-400 text-2xl"></i>
+                    <h2 class="text-3xl font-semibold tracking-tight">Expanding World Border</h2>
+                </div>
+                <p class="text-slate-300 text-lg leading-relaxed">
+                    The world grows with the community. Players can contribute in-game currency to expand the border, 
+                    unlocking new land for everyone to explore and build on.
                 </p>
-            </div>
-            
-            <div class="lg:col-span-2">
-                <div class="aspect-video bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center">
-                    <div class="text-center">
-                        <i class="fa-solid fa-wallet fa-3x text-emerald-400 mb-3"></i>
-                        <p class="text-sm text-slate-400">In-Game Border Shop GUI<br><span class="text-xs">(Coming Soon)</span></p>
-                    </div>
+                <div class="mt-4 inline-flex items-center gap-x-2 text-sm text-amber-400">
+                    <i class="fa-solid fa-coins"></i>
+                    <span>Pay with in-game currency</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Feature 2: Quests -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-                <div class="aspect-video bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center mb-4 lg:mb-0">
+    <!-- Feature 2: Quest System -->
+    <div class="feature-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+            
+            <div class="lg:col-span-3 order-2 lg:order-1">
+                <div class="flex items-center gap-x-3 mb-4">
+                    <i class="fa-solid fa-tasks text-amber-400 text-2xl"></i>
+                    <h2 class="text-3xl font-semibold tracking-tight">Quest System</h2>
+                </div>
+                <p class="text-slate-300 text-lg leading-relaxed">
+                    Complete engaging quests to earn cash and rewards. Whether you're a builder, explorer, or fighter, 
+                    there's a path for you. Progress through story-driven challenges and unlock unique rewards.
+                </p>
+                <div class="mt-4 inline-flex items-center gap-x-2 text-sm text-amber-400">
+                    <i class="fa-solid fa-tachometer-alt"></i>
+                    <span>Progress tracking & rewards</span>
+                </div>
+            </div>
+
+            <!-- Image Placeholder -->
+            <div class="lg:col-span-2 order-1 lg:order-2">
+                <div class="aspect-video bg-slate-950 border border-slate-700 rounded-2xl flex items-center justify-center">
                     <div class="text-center">
-                        <i class="fa-solid fa-tasks fa-3x text-amber-400 mb-3"></i>
+                        <i class="fa-solid fa-tasks fa-3x text-amber-400 mb-4"></i>
                         <p class="text-sm text-slate-400">Quest Log Preview<br><span class="text-xs">(Coming Soon)</span></p>
                     </div>
                 </div>
-            </div>
-            <div>
-                <h3 class="text-2xl font-semibold mb-3">Quest System</h3>
-                <p class="text-slate-400 text-lg">
-                    Complete quests to earn cash. Progress through unique storylines and challenges designed for every type of player — from builders to fighters.
-                </p>
             </div>
         </div>
     </div>
 
     <!-- Feature 3: Mini-Games -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
-        <div class="absolute top-4 right-4 bg-yellow-500 text-yellow-950 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-x-1 z-10">
+    <div class="feature-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-8 relative overflow-hidden">
+        <div class="absolute top-6 right-6 bg-yellow-500/10 text-yellow-400 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-x-1.5">
             <i class="fa-solid fa-hard-hat"></i>
-            <span>WORK IN PROGRESS</span>
+            <span>COMING SOON</span>
         </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-                <h3 class="text-2xl font-semibold mb-3">Mini-Games</h3>
-                <p class="text-slate-400 text-lg">
-                    Take a break from survival and enjoy our collection of fun mini-games with friends. More games and modes are currently in development.
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+            <div class="lg:col-span-3">
+                <div class="flex items-center gap-x-3 mb-4">
+                    <i class="fa-solid fa-gamepad text-amber-400 text-2xl"></i>
+                    <h2 class="text-3xl font-semibold tracking-tight">Mini-Games</h2>
+                </div>
+                <p class="text-slate-300 text-lg leading-relaxed">
+                    Take a break from survival and jump into fun mini-games with friends. We're building a variety of 
+                    game modes to keep things fresh and exciting.
                 </p>
+                <div class="mt-4 inline-flex items-center gap-x-2 text-sm text-amber-400">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Play with friends</span>
+                </div>
             </div>
-            <div class="aspect-video bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center">
-                <div class="text-center">
-                    <i class="fa-solid fa-gamepad fa-3x text-yellow-400 mb-3"></i>
-                    <p class="text-sm text-slate-400">Mini-Games Hub<br><span class="text-xs">(In Development)</span></p>
+
+            <div class="lg:col-span-2">
+                <div class="aspect-video bg-slate-950 border border-slate-700 rounded-2xl flex items-center justify-center">
+                    <div class="text-center">
+                        <i class="fa-solid fa-gamepad fa-3x text-amber-400 mb-4"></i>
+                        <p class="text-sm text-slate-400">Mini-Games Hub<br><span class="text-xs">(In Development)</span></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -129,7 +161,7 @@
 
 </div>
 
-<!-- Footer (Same as Homepage) -->
+<!-- Footer -->
 <footer class="border-t border-slate-800 bg-slate-950">
     <div class="max-w-screen-xl mx-auto px-8 py-12">
         <div class="flex flex-col md:flex-row justify-between items-center gap-y-4 md:gap-y-0">
@@ -152,11 +184,11 @@
 </footer>
 
 <script>
+    // Same navbar + Supabase code as your other pages
     const SUPABASE_URL = 'https://syipxmhmpyqbxwjhyjhn.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5aXB4bWhtcHlxYnh3amh5amhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTg0OTAsImV4cCI6MjA5ODc3NDQ5MH0.38rPtmkqSSSozJeRqP4eF8MK3vKitzcPULzFyeBlbms';
 
     let supabaseClient = null;
-    let currentUser = null;
 
     function initSupabase() {
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -169,9 +201,7 @@
         const { data: { user } } = await supabaseClient.auth.getUser();
 
         if (user) {
-            currentUser = user;
             let username = user.user_metadata?.username || user.email.split('@')[0];
-
             navSection.innerHTML = `
                 <div class="relative">
                     <button onclick="toggleUserDropdown(event)"
@@ -182,14 +212,11 @@
                     
                     <div id="user-dropdown" 
                          class="hidden absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl py-2 z-50">
-                        
                         <a href="account.html" class="block px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
                             <i class="fa-solid fa-user-cog w-4"></i>
                             <span>Account Settings</span>
                         </a>
-                        
-                        <button onclick="logoutUser()" 
-                                class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3 text-red-400">
+                        <button onclick="logoutUser()" class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3 text-red-400">
                             <i class="fa-solid fa-sign-out-alt w-4"></i>
                             <span>Logout</span>
                         </button>
@@ -207,23 +234,16 @@
                     
                     <div id="loggedout-dropdown" 
                          class="hidden absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl py-2 z-50">
-                        
-                        <button onclick="showLoginModal(); hideLoggedOutDropdown();" 
-                                class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
+                        <button onclick="showLoginModal(); hideLoggedOutDropdown();" class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
                             <i class="fa-solid fa-sign-in-alt w-4"></i>
                             <span>Log in</span>
                         </button>
-                        
-                        <button onclick="showRegisterModal(); hideLoggedOutDropdown();" 
-                                class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
+                        <button onclick="showRegisterModal(); hideLoggedOutDropdown();" class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 flex items-center gap-x-3">
                             <i class="fa-solid fa-user-plus w-4"></i>
                             <span>Register</span>
                         </button>
-                        
                         <div class="border-t border-slate-700 my-1"></div>
-                        
-                        <button onclick="showForgotPasswordModal()" 
-                                class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 text-slate-400 flex items-center">
+                        <button onclick="showForgotPasswordModal()" class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 text-slate-400 flex items-center">
                             <i class="fa-solid fa-question-circle w-4 mr-3"></i> 
                             <span>Forgot Password?</span>
                         </button>
@@ -271,29 +291,6 @@
         });
     }
 
-    // Auth modal functions (minimal set for navbar to work)
-    function showLoginModal() {
-        document.getElementById('auth-modal').classList.remove('hidden');
-        document.getElementById('auth-modal').classList.add('flex');
-        document.getElementById('login-form').classList.remove('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('modal-title').textContent = 'Login';
-    }
-
-    function showRegisterModal() {
-        document.getElementById('auth-modal').classList.remove('hidden');
-        document.getElementById('auth-modal').classList.add('flex');
-        document.getElementById('register-form').classList.remove('hidden');
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('modal-title').textContent = 'Create Account';
-    }
-
-    function closeAuthModal() {
-        const modal = document.getElementById('auth-modal');
-        modal.classList.remove('flex');
-        modal.classList.add('hidden');
-    }
-
     window.onload = function() {
         initSupabase();
         setTimeout(() => {
@@ -301,11 +298,6 @@
         }, 400);
     };
 </script>
-
-<!-- Login / Register Modal -->
-<div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
-    <!-- (Same modal content as your other pages - you can copy it from index.html if needed) -->
-</div>
 
 </body>
 </html>
