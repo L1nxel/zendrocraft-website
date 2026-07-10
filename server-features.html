@@ -22,7 +22,10 @@
 </head>
 <body class="bg-slate-950 text-slate-200">
 
-<!-- Navbar -->
+
+
+
+<!-- ========== NAVBAR START ========== --->
 <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
     <div class="max-w-screen-xl mx-auto">
         <div class="px-8 py-5 flex items-center justify-between">
@@ -30,8 +33,11 @@
                 <img src="logo.png" alt="ZendroCraft" class="w-11 h-11 rounded-2xl">
                 <span class="font-display text-3xl font-semibold tracking-tighter">ZendroCraft</span>
             </div>
-
             <div class="flex items-center gap-x-4">
+
+
+
+                <!-- Server IP -->
                 <div onclick="copyServerIP()" 
                      class="hidden md:flex items-center gap-x-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-colors rounded-3xl cursor-pointer group">
                     <div class="flex items-center gap-x-2">
@@ -43,43 +49,55 @@
                     </div>
                     <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
                 </div>
-
                 <div class="relative" id="nav-auth-section"></div>
             </div>
         </div>
     </div>
 </nav>
+<!-- ========== NAVBAR END ========== --->
 
 
 
+
+<!-- ========== PAGE HEADER START ========== --->
 <!-- Page Header -->
 <div class="max-w-screen-xl mx-auto px-8 pt-12 pb-8">
     <div class="max-w-2xl">
-       
+
+
+
         <!-- Title with Icon -->
         <div class="flex items-center gap-x-4 mb-4">
             <i class="fa-solid fa-cogs text-amber-400 text-4xl"></i>
             <h1 class="text-5xl font-display font-semibold tracking-tighter text-amber-400">Server Features</h1>
         </div>
-       
+
+
+
         <!-- Subtitle -->
         <p class="text-xl text-slate-300 max-w-lg">
             An expanding world, engaging quests, and systems designed to grow with the players.
         </p>
-       
     </div>
 </div>
+<!-- ========== PAGE HEADER END ========== --->
 
 
 
-<!-- Server Features -->
+
+<!-- ========== SERVER FEATURES START ========== --->
+<!-- Server Features Content -->
 <div class="max-w-screen-xl mx-auto px-8 pb-20 space-y-8">
+
+
 
     <!-- Feature 1: Expanding World Border -->
     <div class="feature-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-8">
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-            
-            <!-- Image Placeholder -->
+
+
+
+            <!-- Left Side - Image -->
             <div class="lg:col-span-2">
                 <div class="aspect-video bg-slate-950 border border-slate-700 rounded-2xl flex items-center justify-center">
                     <div class="text-center">
@@ -89,6 +107,9 @@
                 </div>
             </div>
 
+
+
+            <!-- Right Side - Text -->
             <div class="lg:col-span-3">
                 <div class="flex items-center gap-x-3 mb-4">
                     <i class="fa-solid fa-globe text-amber-400 text-2xl"></i>
@@ -106,10 +127,15 @@
         </div>
     </div>
 
+
+
     <!-- Feature 2: Quest System -->
     <div class="feature-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-8">
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-            
+
+
+
+            <!-- Left Side - Text -->
             <div class="lg:col-span-3 order-2 lg:order-1">
                 <div class="flex items-center gap-x-3 mb-4">
                     <i class="fa-solid fa-tasks text-amber-400 text-2xl"></i>
@@ -125,7 +151,9 @@
                 </div>
             </div>
 
-            <!-- Image Placeholder -->
+
+
+            <!-- Right Side - Image -->
             <div class="lg:col-span-2 order-1 lg:order-2">
                 <div class="aspect-video bg-slate-950 border border-slate-700 rounded-2xl flex items-center justify-center">
                     <div class="text-center">
@@ -137,14 +165,23 @@
         </div>
     </div>
 
+
+
     <!-- Feature 3: Mini-Games -->
     <div class="feature-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-8 relative overflow-hidden">
+
+
+
+        <!-- Coming Soon Badge -->
         <div class="absolute top-6 right-6 bg-yellow-500/10 text-yellow-400 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-x-1.5">
             <i class="fa-solid fa-hard-hat"></i>
             <span>COMING SOON</span>
         </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+
+
+
+            <!-- Left Side - Text -->
             <div class="lg:col-span-3">
                 <div class="flex items-center gap-x-3 mb-4">
                     <i class="fa-solid fa-gamepad text-amber-400 text-2xl"></i>
@@ -160,6 +197,9 @@
                 </div>
             </div>
 
+
+
+            <!-- Right Side - Image -->
             <div class="lg:col-span-2">
                 <div class="aspect-video bg-slate-950 border border-slate-700 rounded-2xl flex items-center justify-center">
                     <div class="text-center">
@@ -170,33 +210,50 @@
             </div>
         </div>
     </div>
-
 </div>
+<!-- ========== SERVER FEATURES END ========== --->
 
-<!-- Footer -->
+
+
+
+<!-- ========== FOOTER START ========== --->
 <footer class="border-t border-slate-800 bg-slate-950">
     <div class="max-w-screen-xl mx-auto px-8 py-12">
         <div class="flex flex-col md:flex-row justify-between items-center gap-y-4 md:gap-y-0">
+
+
+
+            <!-- Left Side -->
             <div class="flex items-center gap-x-3">
                 <img src="logo.png" alt="ZendroCraft" class="w-9 h-9 rounded-xl">
                 <span class="font-semibold">ZendroCraft</span>
                 <span class="text-slate-500 text-sm">• Minnesota, USA</span>
             </div>
 
+
+
+            <!-- Center -->
             <div class="flex items-center gap-x-2 text-sm text-slate-500">
                 <i class="fa-solid fa-shield-halved text-amber-400"></i>
                 <span>Protected by Cloudflare • DDoS Protected</span>
             </div>
 
+
+
+            <!-- Right Side -->
             <div class="text-sm text-slate-500">
                 © 2026 ZendroCraft. All rights reserved.
             </div>
         </div>
     </div>
 </footer>
+<!-- ========== FOOTER END ========== --->
 
+
+
+
+<!-- ========== SCRIPTS START ========== --->
 <script>
-    // Same navbar + Supabase code as your other pages
     const SUPABASE_URL = 'https://syipxmhmpyqbxwjhyjhn.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5aXB4bWhtcHlxYnh3amh5amhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTg0OTAsImV4cCI6MjA5ODc3NDQ5MH0.38rPtmkqSSSozJeRqP4eF8MK3vKitzcPULzFyeBlbms';
 
@@ -265,6 +322,130 @@
         }
     }
 
+// ==================== AUTH MODAL FUNCTIONS ====================
+
+    function showLoginModal() {
+        document.getElementById('auth-modal').classList.remove('hidden');
+        document.getElementById('auth-modal').classList.add('flex');
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('modal-title').textContent = 'Login';
+    }
+
+    function showRegisterModal() {
+        document.getElementById('auth-modal').classList.remove('hidden');
+        document.getElementById('auth-modal').classList.add('flex');
+        document.getElementById('register-form').classList.remove('hidden');
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('modal-title').textContent = 'Create Account';
+    }
+
+    function closeAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+
+    function switchToRegister() {
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+        document.getElementById('modal-title').textContent = 'Create Account';
+    }
+
+    function switchToLogin() {
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('modal-title').textContent = 'Login';
+    }
+
+    function showForgotPasswordModal() {
+        closeAuthModal();
+        document.getElementById('forgot-password-modal').classList.remove('hidden');
+        document.getElementById('forgot-password-modal').classList.add('flex');
+    }
+
+    function closeForgotPasswordModal() {
+        const modal = document.getElementById('forgot-password-modal');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+
+    async function loginUser() {
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        if (!email || !password) {
+            alert('Please enter both email and password.');
+            return;
+        }
+
+        const { error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) {
+            alert('Error: ' + error.message);
+        } else {
+            alert('Logged in successfully!');
+            closeAuthModal();
+            window.location.reload();
+        }
+    }
+
+    async function registerUser() {
+        const username = document.getElementById('register-username').value.trim();
+        const email = document.getElementById('register-email').value.trim();
+        const password = document.getElementById('register-password').value;
+
+        if (!username || !email || !password) {
+            alert('Please fill in username, email, and password.');
+            return;
+        }
+
+        const { error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: { username: username }
+            }
+        });
+
+        if (error) {
+            alert('Error: ' + error.message);
+        } else {
+            alert('Account created! You can now log in.');
+            closeAuthModal();
+        }
+    }
+
+    async function sendPasswordResetEmail() {
+        const email = document.getElementById('forgot-email').value.trim();
+
+        if (!email) {
+            alert("Please enter your email address.");
+            return;
+        }
+
+        try {
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: 'https://zendrocraft.com/reset-password.html'
+            });
+
+            if (error) {
+                alert("Error: " + error.message);
+                return;
+            }
+
+            alert("Password reset link has been sent to your email. Please check your inbox (and spam folder).");
+            closeForgotPasswordModal();
+
+        } catch (err) {
+           console.error(err);
+            alert("Something went wrong. Please try again.");
+        }
+    }
+
     function toggleLoggedOutDropdown(event) {
         event.stopImmediatePropagation();
         const dropdown = document.getElementById('loggedout-dropdown');
@@ -309,7 +490,124 @@
             updateNavbar();
         }, 400);
     };
+
+
+
 </script>
+<!-- ========== SCRIPTS END ========== --->
+
+
+
+
+<!-- ========== AUTH MODALS START ========== -->
+<!-- Login / Register Modal -->
+<div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
+        
+        <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-times text-xl"></i>
+        </button>
+
+        <h2 class="text-2xl font-semibold mb-6" id="modal-title">Login</h2>
+
+        <!-- Login Form -->
+        <div id="login-form">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm text-slate-400">Email</label>
+                    <input type="email" id="login-email" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Password</label>
+                    <input type="password" id="login-password" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+                <button onclick="loginUser()" 
+                        class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold mt-2">
+                    Log In
+                </button>
+                <div class="text-center mt-3">
+                    <button onclick="showForgotPasswordModal()" 
+                            class="text-sm text-slate-400 hover:text-amber-400 transition-colors">
+                        Forgot your password?
+                    </button>
+                </div>
+            </div>
+            <p class="text-center text-sm text-slate-400 mt-4">
+                Don't have an account? 
+                <span onclick="switchToRegister()" class="text-amber-400 hover:underline cursor-pointer">Register here</span>
+            </p>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form" class="hidden">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm text-slate-400">Username</label>
+                    <input type="text" id="register-username" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500"
+                           placeholder="GamerBoi">
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Email</label>
+                    <input type="email" id="register-email" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Password</label>
+                    <input type="password" id="register-password" 
+                           class="w-full mt-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500">
+                </div>
+                <button onclick="registerUser()" 
+                        class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold mt-2">
+                    Create Account
+                </button>
+            </div>
+            <p class="text-center text-sm text-slate-400 mt-4">
+                Already have an account? 
+                <span onclick="switchToLogin()" class="text-amber-400 hover:underline cursor-pointer">Log in here</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgot-password-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8 w-full max-w-md">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-semibold">Reset Password</h3>
+            <button onclick="closeForgotPasswordModal()" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+
+        <p class="text-slate-400 mb-6 text-sm">Enter your email and we'll send you a link to reset your password.</p>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
+                <input type="email" id="forgot-email" 
+                       class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-amber-500"
+                       placeholder="you@example.com">
+            </div>
+
+            <button onclick="sendPasswordResetEmail()"
+                    class="w-full py-3.5 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold transition-colors">
+                Send Reset Link
+            </button>
+        </div>
+
+        <div class="text-center mt-6">
+            <button onclick="closeForgotPasswordModal(); showLoginModal()" 
+                    class="text-sm text-slate-400 hover:text-white">
+                Back to Login
+            </button>
+        </div>
+    </div>
+</div>
+<!-- ========== AUTH MODALS END ========== -->
+
+
+
 
 </body>
 </html>
