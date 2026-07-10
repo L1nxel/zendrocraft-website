@@ -439,9 +439,11 @@ async function loadUpdates() {
 
 
 async function initializeUpdatesPage() {
-    await loadUpdates();
-    await checkIfAdmin();
+    await checkIfAdmin();     // ← Check admin status FIRST
+    await loadUpdates();      // ← Then load the posts (now isCurrentUserAdmin is true)
 }
+
+
 
 window.onload = function() {
     initSupabase();
