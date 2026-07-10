@@ -340,6 +340,8 @@ async function submitUpdate() {
     }
 }
 
+
+
 async function loadUpdates() {
     const container = document.getElementById('updates-list');
     if (!container) return;
@@ -397,6 +399,15 @@ async function loadUpdates() {
                         </div>
                         <div class="text-xs text-slate-500 mt-1">${date}</div>
                     </div>
+
+                    <!-- DELETE BUTTON (Admin Only) -->
+                    ${isCurrentUserAdmin ? `
+                        <button onclick="deleteUpdate('${update.id}', event)"
+                                class="text-red-400 hover:text-red-500 p-2 rounded-xl hover:bg-red-500/10 transition-colors"
+                                title="Delete Update">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    ` : ''}
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -424,6 +435,8 @@ async function loadUpdates() {
         container.innerHTML += html;
     });
 }
+
+
 
 async function initializeUpdatesPage() {
     await loadUpdates();
@@ -559,6 +572,28 @@ async function sendPasswordResetEmail() {
     } catch (err) {
         console.error(err);
         alert("Something went wrong. Please try again.");
+    }
+}
+
+
+
+async function deleteUpdate(updateId, event) {
+    event.stopImmediatePropagation(); // Prevent any other clicks
+
+    if (!confirm("Are you sure you want to delete this update?")) {
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from('updates')
+        .delete()
+        .eq('id', updateId);
+
+    if (error) {
+        alert("Failed to delete update: " + error.message);
+    } else {
+        alert("Update deleted successfully.");
+        loadUpdates(); // Refresh the list
     }
 }
 
