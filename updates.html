@@ -580,22 +580,62 @@ async function sendPasswordResetEmail() {
 
 
 async function deleteUpdate(updateId, event) {
-    event.stopImmediatePropagation(); // Prevent any other clicks
+    event.stopImmediatePropagation();
 
-    if (!confirm("Are you sure you want to delete this update?")) {
+    if (!confirm("Are you sure you want to delete this update?\nThis will also delete all attached images/videos.")) {
         return;
     }
 
-    const { error } = await supabaseClient
-        .from('updates')
-        .delete()
-        .eq('id', updateId);
+    try {
+        // Step 1: Get the post first so we know which files to delete
+        const { data: post, error: fetchError } = await supabaseClient
+            .from('updates')
+            .select('media_urls')
+            .eq('id', updateId)
+            .single();
 
-    if (error) {
-        alert("Failed to delete update: " + error.message);
-    } else {
-        alert("Update deleted successfully.");
-        loadUpdates(); // Refresh the list
+        if (fetchError) {
+            console.error(fetchError);
+            alert("Could not load update details.");
+            return;
+        }
+
+        // Step 2: Delete files from Storage (if any exist)
+        if (post.media_urls && post.media_urls.length > 0) {
+            // Convert full URLs into storage paths
+            const pathsToDelete = post.media_urls.map(url => {
+                const parts = url.split('/updates/');
+                return parts.length > 1 ? `updates/${parts[1]}` : null;
+            }).filter(Boolean); // remove any nulls
+
+            if (pathsToDelete.length > 0) {
+                const { error: storageError } = await supabaseClient
+                    .storage
+                    .from('update-media')
+                    .remove(pathsToDelete);
+
+                if (storageError) {
+                    console.warn("Some media files could not be deleted:", storageError);
+                }
+            }
+        }
+
+        // Step 3: Delete the database row
+        const { error: deleteError } = await supabaseClient
+            .from('updates')
+            .delete()
+            .eq('id', updateId);
+
+        if (deleteError) {
+            alert("Failed to delete update from database: " + deleteError.message);
+        } else {
+            alert("Update and all media deleted successfully.");
+            loadUpdates(); // Refresh the list
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Something went wrong while deleting.");
     }
 }
 
