@@ -848,20 +848,6 @@ async function removeMyVote(updateId) {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return;
 
-    // === Optimistic UI update (so it feels instant) ===
-    // Find all buttons for this update and reset them
-    document.querySelectorAll(`button[onclick*="removeMyVote('${updateId}')"], button[onclick*="voteOnUpdate('${updateId}'"]`).forEach(btn => {
-        btn.classList.remove('bg-amber-600', 'border-amber-500', 'text-white');
-        btn.classList.add('border-slate-700', 'hover:border-amber-500/50');
-        
-        // Remove the "(You)" text if it exists
-        const youSpan = btn.querySelector('span');
-        if (youSpan && youSpan.textContent.includes('(You)')) {
-            youSpan.remove();
-        }
-    });
-
-    // Actually delete from database
     const { error } = await supabaseClient
         .from('update_votes')
         .delete()
@@ -870,12 +856,9 @@ async function removeMyVote(updateId) {
 
     if (error) {
         alert("Failed to remove vote: " + error.message);
-        loadUpdates(); // Refresh to fix any wrong state
     } else {
-        // Full refresh to get accurate counts
-        setTimeout(() => {
-            loadUpdates();
-        }, 300);
+        // Force a full refresh so the UI definitely updates
+        window.location.reload();
     }
 }
 
