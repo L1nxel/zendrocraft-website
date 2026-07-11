@@ -412,6 +412,21 @@ async function loadUpdates() {
         return;
     }
 
+    // Get current user and their votes
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    let userVotedUpdates = new Set();
+
+    if (user) {
+        const { data: userVotes } = await supabaseClient
+            .from('update_votes')
+            .select('update_id')
+            .eq('user_id', user.id);
+
+        if (userVotes) {
+            userVotes.forEach(v => userVotedUpdates.add(v.update_id));
+        }
+    }
+
     container.innerHTML = '';
 
     for (let update of updates) {
@@ -439,7 +454,6 @@ async function loadUpdates() {
             votesHTML = '<div class="mt-6"><div class="text-sm text-slate-400 mb-2">Vote Section:</div><div class="flex flex-wrap gap-2">';
 
             for (let opt of update.vote_options) {
-                // Get real vote count for this option
                 const { count } = await supabaseClient
                     .from('update_votes')
                     .select('*', { count: 'exact', head: true })
@@ -457,6 +471,16 @@ async function loadUpdates() {
 
             votesHTML += '</div></div>';
         }
+
+        // Show "Remove Vote" button ONLY if the user has voted on this update
+        const hasVoted = userVotedUpdates.has(update.id);
+        const removeButtonHTML = hasVoted 
+            ? `<button onclick="removeMyVote('${update.id}', event)"
+                     class="mt-4 text-sm text-red-400 hover:text-red-500 flex items-center gap-x-2">
+                    <i class="fa-solid fa-times"></i>
+                    <span>Remove My Vote</span>
+               </button>`
+            : '';
 
         const html = `
             <div class="update-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-6">
@@ -483,6 +507,7 @@ async function loadUpdates() {
                         <div class="text-slate-300 whitespace-pre-line">${update.content || ''}</div>
                         
                         ${votesHTML}
+                        ${removeButtonHTML}
                     </div>
 
                     ${mediaHTML ? `
@@ -770,6 +795,32 @@ async function voteOnUpdate(updateId, option) {
     } else {
         showVoteSuccessModal();   // ← Show modal instead of alert
         loadUpdates();
+    }
+}
+
+
+
+
+async function removeMyVote(updateId, event) {
+    event.stopImmediatePropagation(); // Prevent other clicks
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
+
+    if (!confirm("Remove your vote from this update?")) {
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from('update_votes')
+        .delete()
+        .eq('update_id', updateId)
+        .eq('user_id', user.id);
+
+    if (error) {
+        alert("Failed to remove vote.");
+    } else {
+        loadUpdates(); // Refresh the list (button will disappear + counts update)
     }
 }
 
