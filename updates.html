@@ -451,26 +451,9 @@ async function loadUpdates() {
         return;
     }
 
-    // Get current user
-    const { data: { user } } = await supabaseClient.auth.getUser();
-
-    // Get what the current user voted for (if logged in)
-    let userVotes = {};
-    if (user) {
-        const { data: votes } = await supabaseClient
-            .from('update_votes')
-            .select('update_id, vote_option')
-            .eq('user_id', user.id);
-
-        if (votes) {
-            votes.forEach(v => {
-                userVotes[v.update_id] = v.vote_option;
-            });
-        }
-    }
-
     container.innerHTML = '';
 
+    // Use for...of instead of forEach so await works
     for (let update of updates) {
         const date = new Date(update.created_at).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric'
@@ -498,27 +481,17 @@ async function loadUpdates() {
             votesHTML += '<div class="flex flex-wrap gap-2">';
 
             for (let opt of update.vote_options) {
-                // Count total votes for this option
                 const { count } = await supabaseClient
                     .from('update_votes')
                     .select('*', { count: 'exact', head: true })
                     .eq('update_id', update.id)
                     .eq('vote_option', opt);
 
-                // Check if current user voted for this option
-                const userVotedForThis = userVotes[update.id] === opt;
-
                 votesHTML += `
-                    <button onclick="${userVotedForThis 
-                        ? `removeMyVote('${update.id}')` 
-                        : `voteOnUpdate('${update.id}', '${opt}')`}"
-                            class="vote-btn px-4 py-1.5 text-sm rounded-2xl flex items-center gap-x-2 border transition-colors
-                                   ${userVotedForThis 
-                                       ? 'bg-amber-600 border-amber-500 text-white' 
-                                       : 'border-slate-700 hover:border-amber-500/50'}">
+                    <button onclick="voteOnUpdate('${update.id}', '${opt}')"
+                            class="vote-btn px-4 py-1.5 text-sm rounded-2xl flex items-center gap-x-2 border border-slate-700 hover:border-amber-500/50 transition-colors">
                         ${opt}
                         <span class="font-mono text-xs bg-slate-800 px-2 py-0.5 rounded-xl">${count || 0}</span>
-                        ${userVotedForThis ? '<span class="ml-1 text-xs">(You)</span>' : ''}
                     </button>
                 `;
             }
@@ -623,23 +596,6 @@ function switchToLogin() {
     document.getElementById('register-form').classList.add('hidden');
     document.getElementById('login-form').classList.remove('hidden');
     document.getElementById('modal-title').textContent = 'Login';
-}
-
-function closeVoteSuccessModal() {
-    document.getElementById('vote-success-modal').classList.remove('flex');
-    document.getElementById('vote-success-modal').classList.add('hidden');
-}
-
-function closeAlreadyVotedModal() {
-    document.getElementById('already-voted-modal').classList.remove('flex');
-    document.getElementById('already-voted-modal').classList.add('hidden');
-}
-
-async function removeVoteFromModal() {
-    closeAlreadyVotedModal();
-    if (currentVoteUpdateId) {
-        await removeMyVote(currentVoteUpdateId);
-    }
 }
 
 async function loginUser() {
@@ -795,8 +751,6 @@ async function deleteUpdate(updateId, event) {
 
 
 // ==================== VOTING SYSTEM ====================
-let currentVoteUpdateId = null;
-
 async function voteOnUpdate(updateId, option) {
     const { data: { user } } = await supabaseClient.auth.getUser();
 
@@ -806,23 +760,21 @@ async function voteOnUpdate(updateId, option) {
         return;
     }
 
-    // Check if user already voted on this update
+    // Check if user already voted for this option on this update
     const { data: existingVote } = await supabaseClient
         .from('update_votes')
         .select('id')
         .eq('update_id', updateId)
         .eq('user_id', user.id)
+        .eq('vote_option', option)
         .single();
 
     if (existingVote) {
-        // Show "Already voted" modal
-        currentVoteUpdateId = updateId;
-        document.getElementById('already-voted-modal').classList.remove('hidden');
-        document.getElementById('already-voted-modal').classList.add('flex');
+        alert("You already voted for this option.");
         return;
     }
 
-    // First time voting - insert vote
+    // Insert the vote
     const { error } = await supabaseClient
         .from('update_votes')
         .insert({
@@ -833,33 +785,11 @@ async function voteOnUpdate(updateId, option) {
 
     if (error) {
         alert("Failed to vote: " + error.message);
-    } else {
-        // Show success modal
-        currentVoteUpdateId = updateId;
-        document.getElementById('vote-success-modal').classList.remove('hidden');
-        document.getElementById('vote-success-modal').classList.add('flex');
-        loadUpdates();
+        return;
     }
-}
 
-
-
-async function removeMyVote(updateId) {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabaseClient
-        .from('update_votes')
-        .delete()
-        .eq('update_id', updateId)
-        .eq('user_id', user.id);
-
-    if (error) {
-        alert("Failed to remove vote: " + error.message);
-    } else {
-        // Force a full refresh so the UI definitely updates
-        window.location.reload();
-    }
+    // Refresh the updates so vote counts update
+    loadUpdates();
 }
 
 
@@ -1014,44 +944,6 @@ async function removeMyVote(updateId) {
     </div>
 </div>
 <!-- ========== FORGOT PASSWORD MODALS END ========== --->
-
-
-
-
-<!-- ========== VOTE SUCCESS MODAL (First time voting) ========== -->
-<div id="vote-success-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[200]">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 text-center">
-        <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fa-solid fa-check text-3xl"></i>
-        </div>
-        <h3 class="text-2xl font-semibold mb-2">You have successfully voted!</h3>
-        <p class="text-slate-400 mb-6">Thank you for your feedback.</p>
-
-        <button onclick="closeVoteSuccessModal()" 
-                class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold">
-            Continue
-        </button>
-    </div>
-</div>
-
-<!-- ========== ALREADY VOTED MODAL ========== -->
-<div id="already-voted-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[200]">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 text-center">
-        <h3 class="text-2xl font-semibold mb-4">You have already voted.</h3>
-        <p class="text-slate-400 mb-6">Would you like to remove your vote?</p>
-
-        <div class="flex flex-col gap-y-3">
-            <button onclick="removeVoteFromModal()" 
-                    class="w-full py-3 bg-red-600 hover:bg-red-500 rounded-3xl font-semibold">
-                Remove Vote
-            </button>
-            <button onclick="closeAlreadyVotedModal()" 
-                    class="w-full py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold">
-                Cancel
-            </button>
-        </div>
-    </div>
-</div>
 
 
 
