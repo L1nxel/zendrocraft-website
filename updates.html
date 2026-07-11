@@ -636,7 +636,7 @@ function closeAlreadyVotedModal() {
 }
 
 async function removeVoteFromModal() {
-    closeAlreadyVotedModal();
+    closeAlreadyVotedModal();           // Close the modal first
     if (currentVoteUpdateId) {
         await removeMyVote(currentVoteUpdateId);
     }
@@ -857,7 +857,7 @@ async function removeMyVote(updateId) {
     if (error) {
         alert("Failed to remove vote.");
     } else {
-        loadUpdates(); // Refresh counts
+        loadUpdates(); // Refresh the vote counts
     }
 }
 
