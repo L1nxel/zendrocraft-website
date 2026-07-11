@@ -69,7 +69,11 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200">
-<!-- Navbar -->
+
+
+
+
+<!-- ========== NAVBAR ========== -->
 <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
     <div class="max-w-screen-xl mx-auto">
         <div class="px-8 py-5 flex items-center justify-between">
@@ -104,15 +108,24 @@
         </div>
     </div>
 </nav>
+<!-- ========== NAVBAR END ========== -->
 
-    <!-- Hero Section -->
+
+
+
+<!-- ========== PAGE HEADER START ========== --->
     <div class="max-w-screen-xl mx-auto px-8 pt-16 pb-12">
         <div class="max-w-2xl">
             
-            <h1 class="text-6xl font-display font-semibold tracking-tighter leading-none mb-4">
-                Welcome to<br>
-                <span class="bg-gradient-to-r from-amber-400 to-yellow-400 bg-clip-text text-transparent">ZendroCraft</span>
-            </h1>
+<div class="mb-6">
+    <h1 class="text-6xl font-display font-semibold tracking-tighter leading-none mb-2">
+        Welcome to<br>
+        <span class="bg-gradient-to-r from-amber-400 to-yellow-400 bg-clip-text text-transparent">ZendroCraft</span>
+    </h1>
+
+    <!-- Much wider underline -->
+    <div class="mt-2 w-[320px] h-[3px] bg-amber-400 rounded-full"></div>
+</div>
             
             <p class="text-xl text-slate-400 max-w-md mb-8">
                 Join a small, growing world. Expand the border and complete quests.
@@ -128,8 +141,12 @@
             
         </div>
     </div>
+<!-- ========== PAGE HEADER END ========== --->
 
-<!-- Navigation Boxes -->
+
+
+
+<!-- ========== NAVIGATION BOXES START ========== --->
 <div class="max-w-screen-xl mx-auto px-8 pb-20">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
@@ -236,8 +253,12 @@
 
     </div>
 </div>
+<!-- ========== NAVIGATION BOXES END ========== --->
 
-<!-- Footer -->
+
+
+
+<!-- ========== FOOTER START ========== --->
 <footer class="border-t border-slate-800 bg-slate-950">
     <div class="max-w-screen-xl mx-auto px-8 py-12">
         <div class="flex flex-col md:flex-row justify-between items-center gap-y-4 md:gap-y-0">
@@ -263,7 +284,12 @@
         </div>
     </div>
 </footer>
+<!-- ========== FOOTER END ========== --->
 
+
+
+
+<!-- ========== SCRIPTS START ========== --->
     <script>
 
 
@@ -401,9 +427,11 @@ window.onload = function() {
                             
                             <div class="border-t border-slate-700 my-1"></div>
                             
-                            <a href="#" class="block px-4 py-2.5 text-sm hover:bg-slate-800 text-slate-400">
-                                <i class="fa-solid fa-question-circle w-4 mr-3"></i> Forgot Password?
-                            </a>
+                            <button onclick="showForgotPasswordModal()" 
+                                    class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-800 text-slate-400 flex items-center">
+                                <i class="fa-solid fa-question-circle w-4 mr-3"></i> 
+                                <span>Forgot Password?</span>
+                            </button>
                         </div>
                     </div>
                 `;
@@ -572,7 +600,16 @@ async function sendPasswordResetEmail() {
         alert("Something went wrong. Please try again.");
     }
 }
+
+
+
 </script>
+<!-- ========== SCRIPTS END ========== --->
+
+
+
+
+<!-- ========== AUTH MODALS START ========== --->
     <!-- Login / Register Modal -->
     <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
@@ -678,5 +715,10 @@ async function sendPasswordResetEmail() {
         </div>
     </div>
 </div>
+<!-- ========== AUTH MODALS END ========== --->
+
+
+
+
 </body>
 </html>
