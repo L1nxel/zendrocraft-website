@@ -712,20 +712,20 @@ async function voteOnUpdate(updateId, option) {
         return;
     }
 
-    // Check if user already voted on this update
-    const { data: existingVote } = await supabaseClient
+    // Check if the user already voted on this update
+    const { data: existingVote, error: checkError } = await supabaseClient
         .from('update_votes')
         .select('id')
         .eq('update_id', updateId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();   // ← Use maybeSingle() instead of single()
 
     if (existingVote) {
         alert("You already voted on this update. You can only vote once.");
         return;
     }
 
-    // Insert the vote
+    // Insert the new vote
     const { error } = await supabaseClient
         .from('update_votes')
         .insert({
@@ -738,7 +738,7 @@ async function voteOnUpdate(updateId, option) {
         alert("Failed to vote: " + error.message);
     } else {
         alert("Vote recorded! Thank you.");
-        loadUpdates(); // Refresh to show new count
+        loadUpdates(); // Refresh to show updated counts
     }
 }
 
