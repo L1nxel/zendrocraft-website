@@ -630,47 +630,13 @@ function closeVoteSuccessModal() {
     document.getElementById('vote-success-modal').classList.add('hidden');
 }
 
-function undoVoteFromModal() {
-    closeVoteSuccessModal();
-    if (currentVoteUpdateId) {
-        removeMyVote(currentVoteUpdateId);
-    }
-}
-
-function closeChangeVoteModal() {
-    document.getElementById('change-vote-modal').classList.remove('flex');
-    document.getElementById('change-vote-modal').classList.add('hidden');
-}
-
-async function changeVoteFromModal() {
-    closeChangeVoteModal();
-    
-    if (!currentVoteUpdateId || !currentVoteOption) return;
-
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) return;
-
-    // Remove old vote first
-    await supabaseClient
-        .from('update_votes')
-        .delete()
-        .eq('update_id', currentVoteUpdateId)
-        .eq('user_id', user.id);
-
-    // Add new vote
-    await supabaseClient
-        .from('update_votes')
-        .insert({
-            update_id: currentVoteUpdateId,
-            user_id: user.id,
-            vote_option: currentVoteOption
-        });
-
-    loadUpdates();
+function closeAlreadyVotedModal() {
+    document.getElementById('already-voted-modal').classList.remove('flex');
+    document.getElementById('already-voted-modal').classList.add('hidden');
 }
 
 async function removeVoteFromModal() {
-    closeChangeVoteModal();
+    closeAlreadyVotedModal();
     if (currentVoteUpdateId) {
         await removeMyVote(currentVoteUpdateId);
     }
@@ -830,7 +796,6 @@ async function deleteUpdate(updateId, event) {
 
 // ==================== VOTING SYSTEM ====================
 let currentVoteUpdateId = null;
-let currentVoteOption = null;
 
 async function voteOnUpdate(updateId, option) {
     const { data: { user } } = await supabaseClient.auth.getUser();
@@ -844,25 +809,20 @@ async function voteOnUpdate(updateId, option) {
     // Check if user already voted on this update
     const { data: existingVote } = await supabaseClient
         .from('update_votes')
-        .select('id, vote_option')
+        .select('id')
         .eq('update_id', updateId)
         .eq('user_id', user.id)
         .single();
 
     if (existingVote) {
-        // Show change vote modal
+        // Show "Already voted" modal
         currentVoteUpdateId = updateId;
-        currentVoteOption = option;
-
-        document.getElementById('change-vote-text').innerHTML = 
-            `You already voted for <strong>"${existingVote.vote_option}"</strong>.<br>Would you like to change it or remove your vote?`;
-
-        document.getElementById('change-vote-modal').classList.remove('hidden');
-        document.getElementById('change-vote-modal').classList.add('flex');
+        document.getElementById('already-voted-modal').classList.remove('hidden');
+        document.getElementById('already-voted-modal').classList.add('flex');
         return;
     }
 
-    // Vote normally
+    // First time voting - insert vote
     const { error } = await supabaseClient
         .from('update_votes')
         .insert({
@@ -888,10 +848,6 @@ async function removeMyVote(updateId) {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return;
 
-    if (!confirm("Remove your vote from this update?")) {
-        return;
-    }
-
     const { error } = await supabaseClient
         .from('update_votes')
         .delete()
@@ -899,9 +855,9 @@ async function removeMyVote(updateId) {
         .eq('user_id', user.id);
 
     if (error) {
-        alert("Failed to remove vote: " + error.message);
+        alert("Failed to remove vote.");
     } else {
-        loadUpdates(); // Refresh the page
+        loadUpdates(); // Refresh counts
     }
 }
 
@@ -1061,47 +1017,34 @@ async function removeMyVote(updateId) {
 
 
 
-<!-- ========== VOTE SUCCESS MODAL ========== -->
+<!-- ========== VOTE SUCCESS MODAL (First time voting) ========== -->
 <div id="vote-success-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[200]">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 text-center">
         <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fa-solid fa-check text-3xl"></i>
         </div>
-        <h3 class="text-2xl font-semibold mb-2">Vote Recorded!</h3>
-        <p class="text-slate-400 mb-6">Thank you for voting on this update.</p>
+        <h3 class="text-2xl font-semibold mb-2">You have successfully voted!</h3>
+        <p class="text-slate-400 mb-6">Thank you for your feedback.</p>
 
-        <div class="flex gap-x-3">
-            <button onclick="closeVoteSuccessModal()" 
-                    class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold">
-                Okay
-            </button>
-            <button onclick="undoVoteFromModal()" 
-                    class="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-3xl font-semibold">
-                Undo My Vote
-            </button>
-        </div>
+        <button onclick="closeVoteSuccessModal()" 
+                class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold">
+            Continue
+        </button>
     </div>
 </div>
 
-<!-- ========== CHANGE VOTE MODAL ========== -->
-<div id="change-vote-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[200]">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8">
-        <h3 class="text-xl font-semibold mb-4 text-center">You already voted</h3>
-        
-        <p class="text-slate-400 text-center mb-6" id="change-vote-text">
-            <!-- This text will be filled dynamically -->
-        </p>
+<!-- ========== ALREADY VOTED MODAL ========== -->
+<div id="already-voted-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[200]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 text-center">
+        <h3 class="text-2xl font-semibold mb-4">You have already voted.</h3>
+        <p class="text-slate-400 mb-6">Would you like to remove your vote?</p>
 
         <div class="flex flex-col gap-y-3">
-            <button onclick="changeVoteFromModal()" 
-                    class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold">
-                Change My Vote
-            </button>
             <button onclick="removeVoteFromModal()" 
                     class="w-full py-3 bg-red-600 hover:bg-red-500 rounded-3xl font-semibold">
-                Remove My Vote
+                Remove Vote
             </button>
-            <button onclick="closeChangeVoteModal()" 
+            <button onclick="closeAlreadyVotedModal()" 
                     class="w-full py-3 bg-slate-800 hover:bg-slate-700 rounded-3xl font-semibold">
                 Cancel
             </button>
