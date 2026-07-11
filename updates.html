@@ -169,6 +169,45 @@
 
 <!-- ========== SCRIPTS START ========== --->
 <script>
+
+
+
+// Convert plain text bullets (- or *) into real HTML bullet points
+function formatUpdateContent(text) {
+    if (!text) return '';
+
+    const lines = text.split('\n');
+    let html = '';
+    let inList = false;
+
+    lines.forEach(line => {
+        const trimmed = line.trim();
+
+        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+            if (!inList) {
+                html += '<ul class="list-disc list-inside space-y-1 mt-2 mb-2 text-slate-300">';
+                inList = true;
+            }
+            const content = trimmed.substring(2);
+            html += `<li>${content}</li>`;
+        } else {
+            if (inList) {
+                html += '</ul>';
+                inList = false;
+            }
+            if (trimmed !== '') {
+                html += `<p class="mb-2">${trimmed}</p>`;
+            }
+        }
+    });
+
+    if (inList) html += '</ul>';
+
+    return html;
+}
+
+
+
 let isCurrentUserAdmin = false;
 let currentUser = null;
 
@@ -466,7 +505,7 @@ async function loadUpdates() {
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2">
-                        <div class="text-slate-300 whitespace-pre-line">${update.content || ''}</div>
+                        <div class="text-slate-300">${formatUpdateContent(update.content)}</div>
                         
                         ${votesHTML ? `
                             <div class="mt-6">
