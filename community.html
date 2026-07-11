@@ -60,18 +60,25 @@
 </head>
 <body class="bg-slate-950 text-slate-200">
 
-<!-- Navbar -->
+<!-- ========== NAVBAR START ========== --->
 <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
     <div class="max-w-screen-xl mx-auto">
         <div class="px-8 py-5 flex items-center justify-between">
+
+
+
 <!-- Logo -->
 <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
     <img src="logo.png" alt="ZendroCraft" class="w-11 h-11 rounded-2xl">
     <span class="font-display text-3xl font-semibold tracking-tighter">ZendroCraft</span>
 </div>
 
+
+
             <!-- Right Side -->
             <div class="flex items-center gap-x-4">
+
+
 
                 <!-- Server IP (Copy Play.ZendroCraft.Com) -->
                 <div onclick="copyServerIP()" 
@@ -86,8 +93,12 @@
                     <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
                 </div>
 
+
+
                 <!-- Dynamic Auth Section -->
                 <div class="relative" id="nav-auth-section">
+
+
                     <!-- Content controlled by JavaScript -->
                 </div>
 
@@ -95,25 +106,49 @@
         </div>
     </div>
 </nav>
+<!-- ========== NAVBAR END ========== --->
 
-    <!-- Page Header -->
-    <div class="max-w-screen-xl mx-auto px-8 pt-12 pb-8">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="font-display text-5xl font-semibold tracking-tighter">Community</h1>
-                <p class="text-slate-400 mt-2">Share your builds, moments, and adventures with the community.</p>
+
+
+
+<!-- ========== PAGE HEADER START ========== -->
+<div class="max-w-screen-xl mx-auto px-8 pt-12 pb-8">
+    <div class="flex items-center justify-between">
+
+
+
+        <!-- Left Side: Title + Icon + Subtitle -->
+        <div class="max-w-2xl">
+            <!-- Title with Icon -->
+            <div class="flex items-center gap-x-4 mb-4">
+                <i class="fa-solid fa-images text-amber-400 text-4xl"></i>
+                <h1 class="text-5xl font-display font-semibold tracking-tighter text-amber-400">Community</h1>
             </div>
-            
-            <!-- Upload Button (only visible when logged in) -->
-<!-- Post Button -->
-<button id="post-btn"
-        class="flex items-center gap-x-2 px-6 py-3 rounded-3xl font-semibold transition-all">
-    <span id="post-btn-text">Post</span>
-</button>
-        </div>
-    </div>
 
-    <!-- Image Grid -->
+
+
+            <!-- Subtitle -->
+            <p class="text-xl text-slate-300 max-w-lg">
+                Share your builds, moments, and adventures with the community.
+            </p>
+        </div>
+
+
+
+        <!-- Right Side: Post Button -->
+        <button id="post-btn"
+                class="flex items-center gap-x-2 px-6 py-3 rounded-3xl font-semibold transition-all">
+            <span id="post-btn-text">Post</span>
+        </button>
+
+    </div>
+</div>
+<!-- ========== PAGE HEADER END ========== -->
+
+
+
+
+<!-- ========== IMAGE GRID START ========== --->
     <div class="max-w-screen-xl mx-auto px-8 pb-20">
         <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="col-span-full text-center py-12 text-slate-500">
@@ -121,8 +156,12 @@
             </div>
         </div>
     </div>
+<!-- ========== IMAGE GRID END ========== --->
 
-    <!-- Login / Register Modal -->
+
+
+
+<!-- ========== LOGIN / REGISTER MODALS START ========== --->
     <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
             
@@ -131,6 +170,8 @@
             </button>
 
             <h2 class="text-2xl font-semibold mb-6" id="modal-title">Login</h2>
+
+
 
             <!-- Login Form -->
             <div id="login-form">
@@ -162,9 +203,13 @@
                 </p>
             </div>
 
+
+
 <!-- Register Form -->
 <div id="register-form" class="hidden">
     <div class="space-y-4">
+
+
         <!-- Username -->
         <div>
             <label class="text-sm text-slate-400">Username</label>
@@ -196,7 +241,13 @@
         </div>
     </div>
 
+
+
+
+<!-- ========== SCRIPTS START ========== --->
     <script>
+
+
 
 // ==================== LOAD AND DISPLAY POSTS (Enhanced) ====================
 async function loadCommunityPosts() {
@@ -1104,19 +1155,28 @@ function checkForPostInUrl() {
     }
 }
 
+
+
     </script>
+<!-- ========== SCRIPTS END ========== --->
 
 
-<!-- Upload / Create Post Modal -->
+
+
+<!-- ========== UPLOAD / CREATE POST MODALS START ========== --->
 <div id="upload-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-lg p-8 relative">
         
+
+
         <!-- Close Button -->
         <button onclick="closeUploadModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
             <i class="fa-solid fa-times text-xl"></i>
         </button>
 
         <h2 class="text-2xl font-semibold mb-6">Create Post</h2>
+
+
 
         <!-- Image Upload Area -->
         <div class="mb-6">
@@ -1129,6 +1189,8 @@ function checkForPostInUrl() {
                 <input type="file" id="image-input" accept="image/*" class="hidden">
             </div>
             
+
+
             <!-- Image Preview -->
             <div id="image-preview" class="hidden mt-4">
                 <img id="preview-img" class="max-h-64 rounded-2xl mx-auto border border-slate-700">
@@ -1139,6 +1201,8 @@ function checkForPostInUrl() {
                 </button>
             </div>
         </div>
+
+
 
 <!-- Caption / Comment -->
 <div class="mb-6">
@@ -1152,11 +1216,16 @@ function checkForPostInUrl() {
     <p class="text-[10px] text-slate-500 mt-1">Maximum 150 characters</p>
 </div>
 
+
+
         <!-- Enable/Disable Settings -->
         <div class="mb-8">
             <label class="block text-sm text-slate-400 mb-3">Post Settings</label>
             
             <div class="space-y-3">
+
+
+
                 <!-- Allow Likes -->
                 <div class="flex items-center justify-between bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3">
                     <div class="flex items-center gap-x-3">
@@ -1168,6 +1237,8 @@ function checkForPostInUrl() {
                         <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
                     </label>
                 </div>
+
+
 
                 <!-- Allow Comments -->
                 <div class="flex items-center justify-between bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3">
@@ -1183,6 +1254,8 @@ function checkForPostInUrl() {
             </div>
         </div>
 
+
+
         <!-- Action Buttons -->
         <div class="flex gap-x-3">
             <button onclick="closeUploadModal()"
@@ -1197,7 +1270,12 @@ function checkForPostInUrl() {
 
     </div>
 </div>
-<!-- Forgot Password Modal -->
+<!-- ========== UPLOAD / CREATE POST MODALS END ========== --->
+
+
+
+
+<!-- ========== FORGOT PASSWORD MODALS START ========== --->
 <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8 w-full max-w-md">
         <div class="flex justify-between items-center mb-6">
@@ -1229,7 +1307,12 @@ function checkForPostInUrl() {
         </div>
     </div>
 </div>
-<!-- ==================== POST DETAIL MODAL ==================== -->
+<!-- ========== FORGOT PASSWORD MODALS START ========== --->
+
+
+
+
+<!-- ==================== POST DETAIL MODAL START ==================== -->
 <div id="post-detail-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[120] p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
         
@@ -1278,5 +1361,10 @@ function checkForPostInUrl() {
         </div>
     </div>
 </div>
+<!-- ==================== POST DETAIL MODAL END ==================== -->
+
+
+
+
 </body>
 </html>
