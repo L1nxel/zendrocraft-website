@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Rules • ZendroCraft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+
+<!-- Navbar -->
+<nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
+    <div class="max-w-screen-xl mx-auto">
+        <div class="px-8 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
+                <img src="logo.png" alt="ZendroCraft" class="w-11 h-11 rounded-2xl">
+                <span class="font-display text-3xl font-semibold tracking-tighter">ZendroCraft</span>
+            </div>
+
+            <div class="flex items-center gap-x-4">
+                <div onclick="copyServerIP()" 
+                     class="hidden md:flex items-center gap-x-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-colors rounded-3xl cursor-pointer group">
+                    <div class="flex items-center gap-x-2">
+                        <i class="fa-solid fa-globe text-emerald-400"></i>
+                        <div>
+                            <span class="text-sm text-slate-400">Server IP</span>
+                            <span class="font-mono font-semibold ml-1.5 group-hover:text-emerald-400 transition-colors">Play.ZendroCraft.Com</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Header -->
+<div class="max-w-screen-xl mx-auto px-8 pt-12 pb-8">
+    <div class="max-w-2xl">
+        <div class="flex items-center gap-x-4 mb-4">
+            <i class="fa-solid fa-gavel text-amber-400 text-4xl"></i>
+            <h1 class="text-5xl font-display font-semibold tracking-tighter text-amber-400">Server Rules</h1>
+        </div>
+        <p class="text-xl text-slate-300">Please follow these rules to keep ZendroCraft fun and fair for everyone.</p>
+    </div>
+</div>
+
+<!-- Rules Content -->
+<div class="max-w-screen-xl mx-auto px-8 pb-20">
+    <div class="max-w-3xl space-y-6">
+
+        <!-- Rule 1: No Griefing -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex items-start gap-x-4">
+                <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
+                    <span class="font-bold">1</span>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">No Griefing or Stealing</h3>
+                    <p class="text-slate-300">Do not destroy, steal, or tamper with other players’ builds, items, or farms without permission.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule 2: No Hacking -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex items-start gap-x-4">
+                <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
+                    <span class="font-bold">2</span>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">No Hacking, Cheats, or Exploits</h3>
+                    <p class="text-slate-300">Using hacked clients, x-ray, dupes, or any form of cheating is forbidden.</p>
+                    <p class="text-sm text-amber-400 mt-2">Normal farms (such as iron farms, villager farms, etc.) are allowed. Ask staff if you're unsure whether something counts as exploiting.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule 3: PvP -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex items-start gap-x-4">
+                <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
+                    <span class="font-bold">3</span>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">PvP Rules</h3>
+                    <p class="text-slate-300">PvP is only allowed inside designated arenas (when available).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule 4: Build Respectfully -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex items-start gap-x-4">
+                <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
+                    <span class="font-bold">4</span>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Build Respectfully</h3>
+                    <p class="text-slate-300">You may build near other players, but do not build directly on top of or below someone else’s base. Keep at least <strong>5 blocks</strong> of space between builds.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule 5: No Advertising -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex items-start gap-x-4">
+                <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
+                    <span class="font-bold">5</span>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">No Advertising Other Servers</h3>
+                    <p class="text-slate-300">Do not advertise other Minecraft servers in chat.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule 6: Use Common Sense -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex items-start gap-x-4">
+                <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
+                    <span class="font-bold">6</span>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Use Common Sense</h3>
+                    <p class="text-slate-300">If something feels like it ruins the fun or experience for others, it probably isn’t allowed.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-6 text-center">
+            <p class="text-slate-400">Breaking these rules may result in a warning, temporary ban, or permanent ban depending on severity.</p>
+            <p class="text-amber-400 mt-2 font-medium">When in doubt, ask a staff member!</p>
+        </div>
+
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="border-t border-slate-800 bg-slate-950">
+    <div class="max-w-screen-xl mx-auto px-8 py-12">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-y-4">
+            <div class="flex items-center gap-x-3">
+                <img src="logo.png" alt="ZendroCraft" class="w-9 h-9 rounded-xl">
+                <span class="font-semibold">ZendroCraft</span>
+                <span class="text-slate-500 text-sm">• Minnesota, USA</span>
+            </div>
+            <div class="flex items-center gap-x-2 text-sm text-slate-500">
+                <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                <span>Protected by Cloudflare • DDoS Protected</span>
+            </div>
+            <div class="text-sm text-slate-500">
+                © 2026 ZendroCraft. All rights reserved.
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+function copyServerIP() {
+    navigator.clipboard.writeText('Play.ZendroCraft.Com').then(() => {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-3xl text-sm font-medium shadow-lg z-[200]';
+        toast.innerHTML = `<i class="fa-solid fa-check mr-2"></i> <span>IP copied to clipboard!</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    });
+}
+</script>
+
+</body>
+</html>
