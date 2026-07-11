@@ -712,46 +712,25 @@ async function voteOnUpdate(updateId, option) {
         return;
     }
 
-    // Check if user already voted on this update
-    const { data: existingVote } = await supabaseClient
-        .from('update_votes')
-        .select('id, vote_option')
-        .eq('update_id', updateId)
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-    if (existingVote) {
-        // User already voted — check if they're voting for the same option
-        if (existingVote.vote_option === option) {
-            alert("You already voted for this option.");
-            return;
-        }
-
-        // They voted for something else → remove old vote first
-        await supabaseClient
-            .from('update_votes')
-            .delete()
-            .eq('id', existingVote.id);
-    }
-
-    // Insert the new vote (or the changed vote)
+    // Use upsert to either insert or update the vote
     const { error } = await supabaseClient
         .from('update_votes')
-        .insert({
-            update_id: updateId,
-            user_id: user.id,
-            vote_option: option
-        });
+        .upsert(
+            {
+                update_id: updateId,
+                user_id: user.id,
+                vote_option: option
+            },
+            {
+                onConflict: 'update_id,user_id'   // This tells Supabase to update if this combo exists
+            }
+        );
 
     if (error) {
         alert("Failed to vote: " + error.message);
     } else {
-        if (existingVote) {
-            alert("Vote changed!");
-        } else {
-            alert("Vote recorded!");
-        }
-        loadUpdates(); // Refresh the page to show updated counts
+        alert("Vote recorded!");
+        loadUpdates();
     }
 }
 
