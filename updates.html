@@ -636,9 +636,13 @@ function closeAlreadyVotedModal() {
 }
 
 async function removeVoteFromModal() {
-    closeAlreadyVotedModal();           // Close the modal first
+    console.log("Remove Vote button clicked. currentVoteUpdateId =", currentVoteUpdateId);
+    closeAlreadyVotedModal();
+    
     if (currentVoteUpdateId) {
         await removeMyVote(currentVoteUpdateId);
+    } else {
+        alert("Error: Could not find which update to remove the vote from.");
     }
 }
 
@@ -845,8 +849,20 @@ async function voteOnUpdate(updateId, option) {
 
 
 async function removeMyVote(updateId) {
+    console.log("removeMyVote called with ID:", updateId); // For debugging
+
     const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) return;
+    
+    if (!user) {
+        alert("You must be logged in to remove a vote.");
+        return;
+    }
+
+    if (!updateId) {
+        alert("Error: No update ID found. Please try again.");
+        console.error("currentVoteUpdateId was null or undefined");
+        return;
+    }
 
     const { error } = await supabaseClient
         .from('update_votes')
@@ -855,9 +871,12 @@ async function removeMyVote(updateId) {
         .eq('user_id', user.id);
 
     if (error) {
-        alert("Failed to remove vote.");
+        console.error("Delete error:", error);
+        alert("Failed to remove vote: " + error.message);
     } else {
-        loadUpdates(); // Refresh the vote counts
+        console.log("Vote removed successfully");
+        closeAlreadyVotedModal(); // Make sure modal is closed
+        loadUpdates(); // Refresh the page
     }
 }
 
