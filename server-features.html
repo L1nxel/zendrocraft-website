@@ -27,17 +27,33 @@
 
 <!-- ========== NAVBAR START ========== --->
 <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
+
+
+
+    <!-- This is the main container. It keeps everything centered and not too wide -->
     <div class="max-w-screen-xl mx-auto">
+
+
+
+        <!-- This controls the spacing and puts things on the left and right -->
         <div class="px-8 py-5 flex items-center justify-between">
+
+
+
+            <!-- Logo + Click to go home -->
             <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
                 <img src="logo.png" alt="ZendroCraft" class="w-11 h-11 rounded-2xl">
                 <span class="font-display text-3xl font-semibold tracking-tighter">ZendroCraft</span>
             </div>
+
+
+
+            <!-- RIGHT SIDE: Server IP + Login/Register -->
             <div class="flex items-center gap-x-4">
 
 
 
-                <!-- Server IP -->
+                <!-- Server IP Copy Button -->
                 <div onclick="copyServerIP()" 
                      class="hidden md:flex items-center gap-x-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-colors rounded-3xl cursor-pointer group">
                     <div class="flex items-center gap-x-2">
@@ -49,6 +65,10 @@
                     </div>
                     <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
                 </div>
+
+
+
+                <!-- Login / Register / Account button area -->
                 <div class="relative" id="nav-auth-section"></div>
             </div>
         </div>
@@ -499,7 +519,7 @@
 
 
 
-<!-- ========== AUTH MODALS START ========== -->
+<!-- ========== AUTH MODALS START ========== --->
 <!-- Login / Register Modal -->
 <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
@@ -509,6 +529,8 @@
         </button>
 
         <h2 class="text-2xl font-semibold mb-6" id="modal-title">Login</h2>
+
+
 
         <!-- Login Form -->
         <div id="login-form">
@@ -539,6 +561,8 @@
                 <span onclick="switchToRegister()" class="text-amber-400 hover:underline cursor-pointer">Register here</span>
             </p>
         </div>
+
+
 
         <!-- Register Form -->
         <div id="register-form" class="hidden">
@@ -572,6 +596,8 @@
     </div>
 </div>
 
+
+
 <!-- Forgot Password Modal -->
 <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8 w-full max-w-md">
@@ -604,7 +630,7 @@
         </div>
     </div>
 </div>
-<!-- ========== AUTH MODALS END ========== -->
+<!-- ========== AUTH MODALS END ========== --->
 
 
 
