@@ -14,18 +14,28 @@
 </head>
 <body class="bg-slate-950 text-slate-200">
 
-<!-- Navbar -->
+
+
+
+<!-- ========== NAVBAR START ========== --->
 <nav class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg sticky top-0 z-50">
     <div class="max-w-screen-xl mx-auto">
         <div class="px-8 py-5 flex items-center justify-between">
+
+
+
             <!-- Logo -->
             <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.location.href='index.html'">
                 <img src="logo.png" alt="ZendroCraft" class="w-11 h-11 rounded-2xl">
                 <span class="font-display text-3xl font-semibold tracking-tighter">ZendroCraft</span>
             </div>
 
+
+
             <!-- Right Side -->
             <div class="flex items-center gap-x-4">
+
+
                 <!-- Server IP -->
                 <div onclick="copyServerIP()" 
                      class="hidden md:flex items-center gap-x-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-colors rounded-3xl cursor-pointer group">
@@ -39,34 +49,59 @@
                     <i class="fa-solid fa-copy text-emerald-400 opacity-60 group-hover:opacity-100 transition-all ml-1"></i>
                 </div>
 
+
+
 <!-- Dynamic Auth Section -->
 <div class="relative" id="nav-auth-section">
+
+
     <!-- Content controlled by JavaScript -->
 </div>
         </div>
     </div>
 </nav>
+<!-- ========== NAVBAR END ========== --->
 
+
+
+
+<!-- ========== PAGE HEADER START ========== --->
 <div class="max-w-screen-xl mx-auto px-8 py-12">
     <div class="max-w-3xl">
-        <h1 class="text-5xl font-display font-semibold tracking-tighter mb-2">Server Updates</h1>
-        
+
+
+
+        <!-- Title with Icon + Color -->
+        <div class="flex items-center gap-x-4 mb-4">
+            <i class="fa-solid fa-newspaper text-amber-400 text-4xl"></i>
+            <h1 class="text-5xl font-display font-semibold tracking-tighter text-amber-400">Server Updates</h1>
+        </div>
+
+
+
         <!-- Admin Post Button -->
         <button id="admin-post-btn"
                 onclick="showUpdateModal()"
-                class="hidden mt-4 items-center gap-x-2 px-6 py-3 bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-3xl font-semibold transition-all">
+                class="hidden mt-2 items-center gap-x-2 px-6 py-3 bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-3xl font-semibold transition-all">
             <i class="fa-solid fa-plus text-amber-400"></i>
             <span class="text-white">Post New Update</span>
         </button>
 
         <p class="text-slate-400 text-lg mb-10">All the latest changes, features, and news from ZendroCraft.</p>
 
+
+
         <!-- Updates List -->
         <div id="updates-list" class="space-y-6"></div>
+
     </div>
 </div>
+<!-- ========== PAGE HEADER END ========== --->
 
-<!-- Admin Update Modal -->
+
+
+
+<!-- ========== ADMIN UPDATE MODAL START ========== --->
 <div id="update-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl p-8">
         <div class="flex justify-between items-center mb-6">
@@ -113,7 +148,12 @@
         </div>
     </div>
 </div>
+<!-- ========== ADMIN UPDATE MODAL END ========== --->
 
+
+
+
+<!-- ========== SCRIPTS START ========== --->
 <script>
 let isCurrentUserAdmin = false;
 let currentUser = null;
@@ -641,12 +681,13 @@ async function deleteUpdate(updateId, event) {
 
 
 
-
 </script>
+<!-- ========== SCRIPTS END ========== --->
 
 
 
-<!-- Login / Register Modal -->
+
+<!-- ========== LOGIN / REGISTER MODALS START ========== --->
 <div id="auth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 relative">
         
@@ -655,6 +696,8 @@ async function deleteUpdate(updateId, event) {
         </button>
 
         <h2 class="text-2xl font-semibold mb-6" id="modal-title">Login</h2>
+
+
 
         <!-- Login Form -->
         <div id="login-form">
@@ -685,6 +728,8 @@ async function deleteUpdate(updateId, event) {
                 <span onclick="switchToRegister()" class="text-amber-400 hover:underline cursor-pointer">Register here</span>
             </p>
         </div>
+
+
 
         <!-- Register Form -->
         <div id="register-form" class="hidden">
@@ -717,9 +762,12 @@ async function deleteUpdate(updateId, event) {
         </div>
     </div>
 </div>
+<!-- ========== LOGIN / REGISTER MODALS END ========== --->
 
 
-<!-- Forgot Password Modal -->
+
+
+<!-- ========== FORGOT PASSWORD MODALS START ========== --->
 <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8 w-full max-w-md">
         <div class="flex justify-between items-center mb-6">
@@ -751,7 +799,9 @@ async function deleteUpdate(updateId, event) {
         </div>
     </div>
 </div>
-<!-- END OF Forgot Password Modal -->
+<!-- ========== FORGOT PASSWORD MODALS END ========== --->
+
+
 
 
 </body>
