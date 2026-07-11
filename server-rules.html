@@ -10,6 +10,18 @@
     <style>
         body { font-family: 'Inter', system_ui, sans-serif; }
         .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+
+/* Hover effect for rule cards (same as Server Features) */
+.rule-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rule-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    border-color: #fcd34d; /* Amber-300 for subtle glow */
+}
+
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200">
@@ -66,7 +78,7 @@
     <div class="max-w-3xl space-y-6">
 
         <!-- Rule 1 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+        <div class="rule-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-6">
             <div class="flex items-start gap-x-4">
                 <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
                     <span class="font-bold">1</span>
@@ -79,7 +91,7 @@
         </div>
 
         <!-- Rule 2 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+        <div class="rule-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-6">
             <div class="flex items-start gap-x-4">
                 <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
                     <span class="font-bold">2</span>
@@ -93,7 +105,7 @@
         </div>
 
         <!-- Rule 3 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+        <div class="rule-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-6">
             <div class="flex items-start gap-x-4">
                 <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
                     <span class="font-bold">3</span>
@@ -106,7 +118,7 @@
         </div>
 
         <!-- Rule 4 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+        <div class="rule-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-6">
             <div class="flex items-start gap-x-4">
                 <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
                     <span class="font-bold">4</span>
@@ -119,7 +131,7 @@
         </div>
 
         <!-- Rule 5 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+        <div class="rule-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-6">
             <div class="flex items-start gap-x-4">
                 <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
                     <span class="font-bold">5</span>
@@ -132,7 +144,7 @@
         </div>
 
         <!-- Rule 6 -->
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+        <div class="rule-card bg-slate-900 border border-slate-800 hover:border-amber-500/30 rounded-3xl p-6">
             <div class="flex items-start gap-x-4">
                 <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
                     <span class="font-bold">6</span>
