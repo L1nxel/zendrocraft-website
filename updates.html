@@ -451,9 +451,26 @@ async function loadUpdates() {
         return;
     }
 
+    // Get current user
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    // Get what the current user voted for (if logged in)
+    let userVotes = {};
+    if (user) {
+        const { data: votes } = await supabaseClient
+            .from('update_votes')
+            .select('update_id, vote_option')
+            .eq('user_id', user.id);
+
+        if (votes) {
+            votes.forEach(v => {
+                userVotes[v.update_id] = v.vote_option;
+            });
+        }
+    }
+
     container.innerHTML = '';
 
-    // Use for...of instead of forEach so await works
     for (let update of updates) {
         const date = new Date(update.created_at).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric'
@@ -481,17 +498,27 @@ async function loadUpdates() {
             votesHTML += '<div class="flex flex-wrap gap-2">';
 
             for (let opt of update.vote_options) {
+                // Count total votes for this option
                 const { count } = await supabaseClient
                     .from('update_votes')
                     .select('*', { count: 'exact', head: true })
                     .eq('update_id', update.id)
                     .eq('vote_option', opt);
 
+                // Check if current user voted for this option
+                const userVotedForThis = userVotes[update.id] === opt;
+
                 votesHTML += `
-                    <button onclick="voteOnUpdate('${update.id}', '${opt}')"
-                            class="vote-btn px-4 py-1.5 text-sm rounded-2xl flex items-center gap-x-2 border border-slate-700 hover:border-amber-500/50 transition-colors">
+                    <button onclick="${userVotedForThis 
+                        ? `removeMyVote('${update.id}')` 
+                        : `voteOnUpdate('${update.id}', '${opt}')`}"
+                            class="vote-btn px-4 py-1.5 text-sm rounded-2xl flex items-center gap-x-2 border transition-colors
+                                   ${userVotedForThis 
+                                       ? 'bg-amber-600 border-amber-500 text-white' 
+                                       : 'border-slate-700 hover:border-amber-500/50'}">
                         ${opt}
                         <span class="font-mono text-xs bg-slate-800 px-2 py-0.5 rounded-xl">${count || 0}</span>
+                        ${userVotedForThis ? '<span class="ml-1 text-xs">(You)</span>' : ''}
                     </button>
                 `;
             }
@@ -760,21 +787,20 @@ async function voteOnUpdate(updateId, option) {
         return;
     }
 
-    // Check if user already voted for this option on this update
+    // Check if user already voted on this update (any option)
     const { data: existingVote } = await supabaseClient
         .from('update_votes')
-        .select('id')
+        .select('id, vote_option')
         .eq('update_id', updateId)
         .eq('user_id', user.id)
-        .eq('vote_option', option)
         .single();
 
     if (existingVote) {
-        alert("You already voted for this option.");
+        alert(`You already voted for "${existingVote.vote_option}" on this update.\nPlease remove your vote first if you want to change it.`);
         return;
     }
 
-    // Insert the vote
+    // Insert the new vote
     const { error } = await supabaseClient
         .from('update_votes')
         .insert({
@@ -788,8 +814,30 @@ async function voteOnUpdate(updateId, option) {
         return;
     }
 
-    // Refresh the updates so vote counts update
-    loadUpdates();
+    loadUpdates(); // Refresh to show new vote count
+}
+
+
+
+async function removeMyVote(updateId) {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
+
+    if (!confirm("Remove your vote from this update?")) {
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from('update_votes')
+        .delete()
+        .eq('update_id', updateId)
+        .eq('user_id', user.id);
+
+    if (error) {
+        alert("Failed to remove vote: " + error.message);
+    } else {
+        loadUpdates(); // Refresh the page
+    }
 }
 
 
