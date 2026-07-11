@@ -621,6 +621,16 @@ function closeVoteSuccessModal() {
     document.getElementById('vote-success-modal').classList.add('hidden');
 }
 
+function showAlreadyVotedModal() {
+    document.getElementById('already-voted-modal').classList.remove('hidden');
+    document.getElementById('already-voted-modal').classList.add('flex');
+}
+
+function closeAlreadyVotedModal() {
+    document.getElementById('already-voted-modal').classList.remove('flex');
+    document.getElementById('already-voted-modal').classList.add('hidden');
+}
+
 async function sendPasswordResetEmail() {
     const email = document.getElementById('forgot-email').value.trim();
 
@@ -732,7 +742,7 @@ async function voteOnUpdate(updateId, option) {
 
     if (existingVote) {
         if (existingVote.vote_option === option) {
-            alert("You already voted for this option.");
+            showAlreadyVotedModal();   // ← Changed from alert()
             return;
         }
 
@@ -929,6 +939,25 @@ async function voteOnUpdate(updateId, option) {
         <p class="text-slate-400 mb-6">Thank you for your feedback.</p>
 
         <button onclick="closeVoteSuccessModal()" 
+                class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold">
+            Okay
+        </button>
+    </div>
+</div>
+
+
+
+
+<!-- ========== ALREADY VOTED MODAL ========== -->
+<div id="already-voted-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[200]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 text-center">
+        <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-info-circle text-3xl"></i>
+        </div>
+        <h3 class="text-2xl font-semibold mb-2">You already voted for this option.</h3>
+        <p class="text-slate-400 mb-6">You can only vote once per update.</p>
+
+        <button onclick="closeAlreadyVotedModal()" 
                 class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold">
             Okay
         </button>
