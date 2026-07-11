@@ -611,6 +611,16 @@ function closeForgotPasswordModal() {
     modal.classList.add('hidden');
 }
 
+function showVoteSuccessModal() {
+    document.getElementById('vote-success-modal').classList.remove('hidden');
+    document.getElementById('vote-success-modal').classList.add('flex');
+}
+
+function closeVoteSuccessModal() {
+    document.getElementById('vote-success-modal').classList.remove('flex');
+    document.getElementById('vote-success-modal').classList.add('hidden');
+}
+
 async function sendPasswordResetEmail() {
     const email = document.getElementById('forgot-email').value.trim();
 
@@ -712,7 +722,28 @@ async function voteOnUpdate(updateId, option) {
         return;
     }
 
-    // Use upsert to either insert or update the vote
+    // Check if user already voted
+    const { data: existingVote } = await supabaseClient
+        .from('update_votes')
+        .select('id, vote_option')
+        .eq('update_id', updateId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+    if (existingVote) {
+        if (existingVote.vote_option === option) {
+            alert("You already voted for this option.");
+            return;
+        }
+
+        // Changing vote - delete old one first
+        await supabaseClient
+            .from('update_votes')
+            .delete()
+            .eq('id', existingVote.id);
+    }
+
+    // Insert / Upsert the vote
     const { error } = await supabaseClient
         .from('update_votes')
         .upsert(
@@ -721,15 +752,13 @@ async function voteOnUpdate(updateId, option) {
                 user_id: user.id,
                 vote_option: option
             },
-            {
-                onConflict: 'update_id,user_id'   // This tells Supabase to update if this combo exists
-            }
+            { onConflict: 'update_id,user_id' }
         );
 
     if (error) {
         alert("Failed to vote: " + error.message);
     } else {
-        alert("Vote recorded!");
+        showVoteSuccessModal();   // ← Show modal instead of alert
         loadUpdates();
     }
 }
@@ -886,6 +915,25 @@ async function voteOnUpdate(updateId, option) {
     </div>
 </div>
 <!-- ========== FORGOT PASSWORD MODALS END ========== --->
+
+
+
+
+<!-- ========== VOTE SUCCESS MODAL ========== -->
+<div id="vote-success-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[200]">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-8 text-center">
+        <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-check text-3xl"></i>
+        </div>
+        <h3 class="text-2xl font-semibold mb-2">Vote Recorded</h3>
+        <p class="text-slate-400 mb-6">Thank you for your feedback.</p>
+
+        <button onclick="closeVoteSuccessModal()" 
+                class="w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold">
+            Okay
+        </button>
+    </div>
+</div>
 
 
 
