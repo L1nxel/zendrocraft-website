@@ -169,45 +169,6 @@
 
 <!-- ========== SCRIPTS START ========== --->
 <script>
-
-
-
-// Convert plain text bullets (- or *) into real HTML bullet points
-function formatUpdateContent(text) {
-    if (!text) return '';
-
-    const lines = text.split('\n');
-    let html = '';
-    let inList = false;
-
-    lines.forEach(line => {
-        const trimmed = line.trim();
-
-        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-            if (!inList) {
-                html += '<ul class="list-disc list-inside space-y-1 mt-2 mb-2 text-slate-300">';
-                inList = true;
-            }
-            const content = trimmed.substring(2);
-            html += `<li>${content}</li>`;
-        } else {
-            if (inList) {
-                html += '</ul>';
-                inList = false;
-            }
-            if (trimmed !== '') {
-                html += `<p class="mb-2">${trimmed}</p>`;
-            }
-        }
-    });
-
-    if (inList) html += '</ul>';
-
-    return html;
-}
-
-
-
 let isCurrentUserAdmin = false;
 let currentUser = null;
 
@@ -453,8 +414,7 @@ async function loadUpdates() {
 
     container.innerHTML = '';
 
-    // Use for...of instead of forEach so await works
-    for (let update of updates) {
+    updates.forEach(update => {
         const date = new Date(update.created_at).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric'
         });
@@ -474,29 +434,13 @@ async function loadUpdates() {
         }
 
         let votesHTML = '';
-
         if (update.vote_options && update.vote_options.length > 0) {
-            votesHTML = '<div class="mt-6">';
-            votesHTML += '<div class="text-sm text-slate-400 mb-2">Vote Section:</div>';
-            votesHTML += '<div class="flex flex-wrap gap-2">';
-
-            for (let opt of update.vote_options) {
-                const { count } = await supabaseClient
-                    .from('update_votes')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('update_id', update.id)
-                    .eq('vote_option', opt);
-
-                votesHTML += `
-                    <button onclick="voteOnUpdate('${update.id}', '${opt}')"
-                            class="vote-btn px-4 py-1.5 text-sm rounded-2xl flex items-center gap-x-2 border border-slate-700 hover:border-amber-500/50 transition-colors">
-                        ${opt}
-                        <span class="font-mono text-xs bg-slate-800 px-2 py-0.5 rounded-xl">${count || 0}</span>
-                    </button>
-                `;
-            }
-
-            votesHTML += '</div></div>';
+            votesHTML = update.vote_options.map(opt => `
+                <button onclick="voteOnUpdate('${update.id}', '${opt}')"
+                        class="vote-btn px-4 py-1.5 text-sm rounded-2xl flex items-center gap-x-2">
+                    ${opt} <span class="font-mono text-xs">(0)</span>
+                </button>
+            `).join('');
         }
 
         const html = `
@@ -510,6 +454,7 @@ async function loadUpdates() {
                         <div class="text-xs text-slate-500 mt-1">${date}</div>
                     </div>
 
+                    <!-- DELETE BUTTON (Admin Only) -->
                     ${isCurrentUserAdmin ? `
                         <button onclick="deleteUpdate('${update.id}', event)"
                                 class="text-red-400 hover:text-red-500 p-2 rounded-xl hover:bg-red-500/10 transition-colors"
@@ -521,7 +466,7 @@ async function loadUpdates() {
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2">
-                        <div class="text-slate-300">${formatUpdateContent(update.content)}</div>
+                        <div class="text-slate-300 whitespace-pre-line">${update.content || ''}</div>
                         
                         ${votesHTML ? `
                             <div class="mt-6">
@@ -542,7 +487,7 @@ async function loadUpdates() {
             </div>
         `;
         container.innerHTML += html;
-    }
+    });
 }
 
 
@@ -746,50 +691,6 @@ async function deleteUpdate(updateId, event) {
         console.error(err);
         alert("Something went wrong while deleting.");
     }
-}
-
-
-
-// ==================== VOTING SYSTEM ====================
-async function voteOnUpdate(updateId, option) {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-
-    if (!user) {
-        alert("You must be logged in to vote.");
-        showLoginModal();
-        return;
-    }
-
-    // Check if user already voted for this option on this update
-    const { data: existingVote } = await supabaseClient
-        .from('update_votes')
-        .select('id')
-        .eq('update_id', updateId)
-        .eq('user_id', user.id)
-        .eq('vote_option', option)
-        .single();
-
-    if (existingVote) {
-        alert("You already voted for this option.");
-        return;
-    }
-
-    // Insert the vote
-    const { error } = await supabaseClient
-        .from('update_votes')
-        .insert({
-            update_id: updateId,
-            user_id: user.id,
-            vote_option: option
-        });
-
-    if (error) {
-        alert("Failed to vote: " + error.message);
-        return;
-    }
-
-    // Refresh the updates so vote counts update
-    loadUpdates();
 }
 
 
