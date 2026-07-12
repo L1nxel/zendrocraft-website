@@ -9,6 +9,15 @@
     <style>
         body { font-family: 'Inter', system_ui, sans-serif; }
         .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+        
+        /* Nice scrollbar for the tickets list */
+        #my-tickets-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        #my-tickets-list::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 20px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -56,7 +65,7 @@
 <div class="max-w-screen-xl mx-auto px-8 pb-16">
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-        <!-- Submit Ticket Form -->
+        <!-- Submit Ticket -->
         <div class="lg:col-span-3">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8">
                 <h2 class="text-2xl font-semibold mb-6">Submit a New Ticket</h2>
@@ -96,15 +105,20 @@
             </div>
         </div>
 
-        <!-- My Tickets -->
+        <!-- My Tickets (NOW SCROLLABLE) -->
         <div class="lg:col-span-2">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8">
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center justify-between mb-4">
                     <h2 class="text-2xl font-semibold">My Tickets</h2>
                     <span id="open-ticket-count" class="text-sm px-3 py-1 bg-slate-800 rounded-full"></span>
                 </div>
 
-                <div id="my-tickets-list" class="space-y-4"></div>
+                <!-- Scrollable container -->
+                <div class="max-h-[380px] overflow-y-auto pr-2 -mr-2" id="tickets-scroll-container">
+                    <div id="my-tickets-list" class="space-y-4">
+                        <!-- Tickets loaded dynamically here -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -225,7 +239,18 @@
         });
     }
 
-    // ==================== LOAD TICKETS ====================
+    // ==================== HELPER: Count open tickets ====================
+    async function getOpenTicketCount(userId) {
+        const { count, error } = await supabaseClient
+            .from('tickets')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .neq('status', 'Closed');
+
+        return error ? 0 : (count || 0);
+    }
+
+    // ==================== LOAD TICKETS (with scroll) ====================
     async function loadMyTickets() {
         const container = document.getElementById('my-tickets-list');
         const countEl = document.getElementById('open-ticket-count');
@@ -306,105 +331,87 @@
         }
     }
 
-// ==================== HELPER FUNCTION ====================
-async function getOpenTicketCount(userId) {
-    const { count, error } = await supabaseClient
-        .from('tickets')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .neq('status', 'Closed');
+    // ==================== REOPEN TICKET (with limit check) ====================
+    async function reopenTicket(ticketId) {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return;
 
-    if (error) {
-        console.error("Error counting open tickets:", error);
-        return 0;
-    }
-    return count || 0;
-}
+        const openCount = await getOpenTicketCount(user.id);
 
-// ==================== SUBMIT TICKET ====================
-async function handleTicketSubmit(e) {
-    e.preventDefault();
+        if (openCount >= MAX_OPEN_TICKETS) {
+            alert(`You already have ${MAX_OPEN_TICKETS} open tickets. Please close one before reopening another.`);
+            return;
+        }
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) return;
+        if (!confirm("Reopen this ticket?")) return;
 
-    const openCount = await getOpenTicketCount(user.id);
+        const { error } = await supabaseClient
+            .from('tickets')
+            .update({ status: 'Open', closed_at: null })
+            .eq('id', ticketId);
 
-    if (openCount >= MAX_OPEN_TICKETS) {
-        alert(`You can only have ${MAX_OPEN_TICKETS} open tickets at a time. Please close an old ticket first.`);
-        return;
+        if (error) {
+            alert("Failed to reopen ticket.");
+        } else {
+            alert("Ticket reopened successfully.");
+            loadMyTickets();
+        }
     }
 
-    const category = document.getElementById('ticket-category').value;
-    const title = document.getElementById('ticket-title').value.trim();
-    const description = document.getElementById('ticket-description').value.trim();
-    const username = user.user_metadata?.username || user.email.split('@')[0];
+    // ==================== SUBMIT TICKET + EMAIL ====================
+    async function handleTicketSubmit(e) {
+        e.preventDefault();
 
-    const { data: insertedTicket, error } = await supabaseClient
-        .from('tickets')
-        .insert({
-            user_id: user.id,
-            category,
-            title,
-            description,
-            status: 'Open'
-        })
-        .select()
-        .single();
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return;
 
-    if (error) {
-        alert("Failed to submit ticket: " + error.message);
-        return;
-    }
+        const openCount = await getOpenTicketCount(user.id);
 
-    // Send email notification
-    try {
-        await supabaseClient.functions.invoke('clever-endpoint', {
-            body: {
-                ticket: {
-                    ...insertedTicket,
-                    username: username
+        if (openCount >= MAX_OPEN_TICKETS) {
+            alert(`You can only have ${MAX_OPEN_TICKETS} open tickets at a time. Please close an old ticket first.`);
+            return;
+        }
+
+        const category = document.getElementById('ticket-category').value;
+        const title = document.getElementById('ticket-title').value.trim();
+        const description = document.getElementById('ticket-description').value.trim();
+        const username = user.user_metadata?.username || user.email.split('@')[0];
+
+        const { data: insertedTicket, error } = await supabaseClient
+            .from('tickets')
+            .insert({
+                user_id: user.id,
+                category,
+                title,
+                description,
+                status: 'Open'
+            })
+            .select()
+            .single();
+
+        if (error) {
+            alert("Failed to submit ticket: " + error.message);
+            return;
+        }
+
+        // Send email notification
+        try {
+            await supabaseClient.functions.invoke('clever-endpoint', {
+                body: {
+                    ticket: {
+                        ...insertedTicket,
+                        username: username
+                    }
                 }
-            }
-        });
-    } catch (emailError) {
-        console.error("Email notification failed:", emailError);
-    }
+            });
+        } catch (emailError) {
+            console.error("Email notification failed:", emailError);
+        }
 
-    alert("Ticket submitted successfully!");
-    document.getElementById('ticket-form').reset();
-    loadMyTickets();
-}
-
-// ==================== REOPEN TICKET ====================
-async function reopenTicket(ticketId) {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) return;
-
-    const openCount = await getOpenTicketCount(user.id);
-
-    if (openCount >= MAX_OPEN_TICKETS) {
-        alert(`You already have ${MAX_OPEN_TICKETS} open tickets. Please close one before reopening another.`);
-        return;
-    }
-
-    if (!confirm("Reopen this ticket?")) return;
-
-    const { error } = await supabaseClient
-        .from('tickets')
-        .update({ 
-            status: 'Open', 
-            closed_at: null 
-        })
-        .eq('id', ticketId);
-
-    if (error) {
-        alert("Failed to reopen ticket.");
-    } else {
-        alert("Ticket reopened successfully.");
+        alert("Ticket submitted successfully!");
+        document.getElementById('ticket-form').reset();
         loadMyTickets();
     }
-}
 
     function initializePage() {
         initSupabase();
