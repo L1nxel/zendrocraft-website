@@ -105,7 +105,7 @@
                 </div>
 
                 <div id="my-tickets-list" class="space-y-4">
-                    <!-- Tickets will be loaded here by JavaScript -->
+                    <!-- Dynamically loaded -->
                 </div>
             </div>
         </div>
@@ -126,7 +126,7 @@
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
                 <h3 class="font-semibold mb-2">Lost items or progress?</h3>
-                <p class="text-sm text-slate-400">Submit a ticket with as much detail as possible (time, location, etc).</p>
+                <p class="text-sm text-slate-400">Submit a ticket with as much detail as possible.</p>
             </div>
         </div>
     </div>
@@ -155,7 +155,7 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5aXB4bWhtcHlxYnh3amh5amhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxOTg0OTAsImV4cCI6MjA5ODc3NDQ5MH0.38rPtmkqSSSozJeRqP4eF8MK3vKitzcPULzFyeBlbms';
 
     let supabaseClient = null;
-    const MAX_OPEN_TICKETS = 3; // ← Change this number if you want
+    const MAX_OPEN_TICKETS = 3;
 
     function initSupabase() {
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -216,8 +216,19 @@
         });
     }
 
-    // ==================== TICKET FUNCTIONS ====================
+    // Format date/time in user's local timezone
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString([], {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+        });
+    }
 
+    // ==================== LOAD TICKETS ====================
     async function loadMyTickets() {
         const container = document.getElementById('my-tickets-list');
         const countEl = document.getElementById('open-ticket-count');
@@ -253,10 +264,27 @@
         container.innerHTML = '';
 
         tickets.forEach(ticket => {
-            const date = new Date(ticket.created_at).toLocaleDateString();
+            const date = formatDateTime(ticket.created_at);
             let statusColor = 'bg-emerald-500/10 text-emerald-400';
             if (ticket.status === 'Closed') statusColor = 'bg-slate-700 text-slate-400';
             if (ticket.status === 'Waiting for Response') statusColor = 'bg-amber-500/10 text-amber-400';
+
+            let actionButton = '';
+            if (ticket.status === 'Closed') {
+                actionButton = `
+                    <button onclick="reopenTicket('${ticket.id}')" 
+                            class="text-sm px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 rounded-2xl transition-colors">
+                        Reopen Ticket
+                    </button>
+                `;
+            } else {
+                actionButton = `
+                    <button onclick="closeTicket('${ticket.id}')" 
+                            class="text-sm px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-400 rounded-2xl transition-colors">
+                        Close Ticket
+                    </button>
+                `;
+            }
 
             const ticketHTML = `
                 <div class="bg-slate-950 border border-slate-700 rounded-2xl p-5">
@@ -268,19 +296,14 @@
                         <span class="px-3 py-1 text-xs rounded-full ${statusColor}">${ticket.status}</span>
                     </div>
                     <p class="text-sm text-slate-300 line-clamp-3 mb-4">${ticket.description}</p>
-                    
-                    ${ticket.status !== 'Closed' ? `
-                        <button onclick="closeTicket('${ticket.id}')" 
-                                class="text-sm px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-400 rounded-2xl transition-colors">
-                            Close Ticket
-                        </button>
-                    ` : ''}
+                    ${actionButton}
                 </div>
             `;
             container.innerHTML += ticketHTML;
         });
     }
 
+    // ==================== CLOSE TICKET ====================
     async function closeTicket(ticketId) {
         if (!confirm("Are you sure you want to close this ticket?")) return;
 
@@ -300,14 +323,32 @@
         }
     }
 
+    // ==================== REOPEN TICKET ====================
+    async function reopenTicket(ticketId) {
+        if (!confirm("Reopen this ticket?")) return;
+
+        const { error } = await supabaseClient
+            .from('tickets')
+            .update({ 
+                status: 'Open', 
+                closed_at: null 
+            })
+            .eq('id', ticketId);
+
+        if (error) {
+            alert("Failed to reopen ticket.");
+        } else {
+            alert("Ticket reopened successfully.");
+            loadMyTickets();
+        }
+    }
+
+    // ==================== SUBMIT TICKET ====================
     async function handleTicketSubmit(e) {
         e.preventDefault();
 
         const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) {
-            alert("You must be logged in.");
-            return;
-        }
+        if (!user) return;
 
         // Check open ticket limit
         const { data: openTickets } = await supabaseClient
