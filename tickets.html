@@ -56,7 +56,7 @@
 <div class="max-w-screen-xl mx-auto px-8 pb-16">
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-        <!-- Submit Ticket -->
+        <!-- Submit Ticket Form -->
         <div class="lg:col-span-3">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8">
                 <h2 class="text-2xl font-semibold mb-6">Submit a New Ticket</h2>
@@ -104,9 +104,7 @@
                     <span id="open-ticket-count" class="text-sm px-3 py-1 bg-slate-800 rounded-full"></span>
                 </div>
 
-                <div id="my-tickets-list" class="space-y-4">
-                    <!-- Dynamically loaded -->
-                </div>
+                <div id="my-tickets-list" class="space-y-4"></div>
             </div>
         </div>
 
@@ -122,7 +120,7 @@
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
                 <h3 class="font-semibold mb-2">How do I report a player?</h3>
-                <p class="text-sm text-slate-400">Use the in-game <span class="font-mono">/report</span> command or submit a ticket here.</p>
+                <p class="text-sm text-slate-400">Use the in-game <span class="font-mono">/report</span> command.</p>
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
                 <h3 class="font-semibold mb-2">Lost items or progress?</h3>
@@ -216,7 +214,6 @@
         });
     }
 
-    // Format date/time in user's local timezone
     function formatDateTime(dateString) {
         const date = new Date(dateString);
         return date.toLocaleString([], {
@@ -267,23 +264,12 @@
             const date = formatDateTime(ticket.created_at);
             let statusColor = 'bg-emerald-500/10 text-emerald-400';
             if (ticket.status === 'Closed') statusColor = 'bg-slate-700 text-slate-400';
-            if (ticket.status === 'Waiting for Response') statusColor = 'bg-amber-500/10 text-amber-400';
 
             let actionButton = '';
             if (ticket.status === 'Closed') {
-                actionButton = `
-                    <button onclick="reopenTicket('${ticket.id}')" 
-                            class="text-sm px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 rounded-2xl transition-colors">
-                        Reopen Ticket
-                    </button>
-                `;
+                actionButton = `<button onclick="reopenTicket('${ticket.id}')" class="text-sm px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 rounded-2xl transition-colors">Reopen Ticket</button>`;
             } else {
-                actionButton = `
-                    <button onclick="closeTicket('${ticket.id}')" 
-                            class="text-sm px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-400 rounded-2xl transition-colors">
-                        Close Ticket
-                    </button>
-                `;
+                actionButton = `<button onclick="closeTicket('${ticket.id}')" class="text-sm px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-400 rounded-2xl transition-colors">Close Ticket</button>`;
             }
 
             const ticketHTML = `
@@ -309,10 +295,7 @@
 
         const { error } = await supabaseClient
             .from('tickets')
-            .update({ 
-                status: 'Closed', 
-                closed_at: new Date().toISOString() 
-            })
+            .update({ status: 'Closed', closed_at: new Date().toISOString() })
             .eq('id', ticketId);
 
         if (error) {
@@ -329,10 +312,7 @@
 
         const { error } = await supabaseClient
             .from('tickets')
-            .update({ 
-                status: 'Open', 
-                closed_at: null 
-            })
+            .update({ status: 'Open', closed_at: null })
             .eq('id', ticketId);
 
         if (error) {
@@ -343,7 +323,7 @@
         }
     }
 
-    // ==================== SUBMIT TICKET ====================
+    // ==================== SUBMIT TICKET + SEND EMAIL ====================
     async function handleTicketSubmit(e) {
         e.preventDefault();
 
@@ -358,29 +338,51 @@
             .neq('status', 'Closed');
 
         if (openTickets && openTickets.length >= MAX_OPEN_TICKETS) {
-            alert(`You can only have ${MAX_OPEN_TICKETS} open tickets at a time. Please close an old ticket first.`);
+            alert(`You can only have ${MAX_OPEN_TICKETS} open tickets at a time.`);
             return;
         }
 
         const category = document.getElementById('ticket-category').value;
         const title = document.getElementById('ticket-title').value.trim();
         const description = document.getElementById('ticket-description').value.trim();
+        const username = user.user_metadata?.username || user.email.split('@')[0];
 
-        const { error } = await supabaseClient.from('tickets').insert({
-            user_id: user.id,
-            category,
-            title,
-            description,
-            status: 'Open'
-        });
+        // 1. Insert ticket into database
+        const { data: insertedTicket, error } = await supabaseClient
+            .from('tickets')
+            .insert({
+                user_id: user.id,
+                category,
+                title,
+                description,
+                status: 'Open'
+            })
+            .select()
+            .single();
 
         if (error) {
             alert("Failed to submit ticket: " + error.message);
-        } else {
-            alert("Ticket submitted successfully!");
-            document.getElementById('ticket-form').reset();
-            loadMyTickets();
+            return;
         }
+
+        // 2. Send email notification via Edge Function
+        try {
+            await supabaseClient.functions.invoke('clever-endpoint', {
+                body: {
+                    ticket: {
+                        ...insertedTicket,
+                        username: username
+                    }
+                }
+            });
+        } catch (emailError) {
+            console.error("Email notification failed:", emailError);
+            // Don't block the user if email fails
+        }
+
+        alert("Ticket submitted successfully!");
+        document.getElementById('ticket-form').reset();
+        loadMyTickets();
     }
 
     function initializePage() {
