@@ -378,7 +378,7 @@
         document.getElementById('current-email').textContent = user.email;
 
         // Show Admin Dashboard only if you're the admin
-        if (user.email === 'ZendroCraftAdmin@gmail.com') {
+        if (user.email?.toLowerCase() === 'zendrocraftadmin@gmail.com') {
             document.getElementById('admin-dashboard').classList.remove('hidden');
             loadAdminTickets();
             console.log("Admin dashboard should be visible now");
