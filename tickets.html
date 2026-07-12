@@ -310,7 +310,12 @@
         // Notify admin
         try {
             await supabaseClient.functions.invoke('clever-endpoint', {
-                body: { type: 'user_reply', ticket_id: currentTicketId, message }
+                body: { 
+                    type: 'user_reply', 
+                    ticket_id: currentTicketId, 
+                    message,
+                    username: user.user_metadata?.username || user.email.split('@')[0]
+                }
             });
         } catch (e) { console.error(e); }
 
