@@ -252,8 +252,10 @@ function filterAdminTickets(status, element) {
 }
  
 async function loadAdminTickets(statusFilter = 'all') {
+    console.log("Refreshing admin ticket list...");
     const container = document.getElementById('admin-tickets-list');
     container.innerHTML = `<div class="text-center py-6 text-slate-500">Loading tickets...</div>`;
+    // ... rest of the function stays the same
 
     const { data: tickets, error } = await supabaseClient
         .from('tickets')
@@ -704,41 +706,27 @@ async function deleteTicket(ticketId, event) {
         return;
     }
 
-    console.log("Starting delete for ticket:", ticketId);
-
     try {
-        // Step 1: Delete messages
-        console.log("Deleting messages...");
-        const { error: msgError } = await supabaseClient
-            .from('ticket_messages')
-            .delete()
-            .eq('ticket_id', ticketId);
+        // Delete messages
+        await supabaseClient.from('ticket_messages').delete().eq('ticket_id', ticketId);
 
-        if (msgError) {
-            console.error("Messages delete error:", msgError);
-        } else {
-            console.log("Messages deleted successfully");
-        }
+        // Delete ticket
+        const { error } = await supabaseClient.from('tickets').delete().eq('id', ticketId);
 
-        // Step 2: Delete ticket
-        console.log("Deleting ticket...");
-        const { error: ticketError } = await supabaseClient
-            .from('tickets')
-            .delete()
-            .eq('id', ticketId);
-
-        if (ticketError) {
-            console.error("TICKET DELETE ERROR:", ticketError);
-            alert("Failed to delete ticket. See console for details.");
+        if (error) {
+            console.error("Delete error:", error);
+            alert("Failed to delete ticket.");
             return;
         }
 
-        console.log("Ticket deleted successfully!");
+        // Success
         alert("Ticket deleted successfully.");
+        
+        // Refresh the list
         loadAdminTickets();
 
     } catch (err) {
-        console.error("Unexpected error in deleteTicket:", err);
+        console.error("Unexpected delete error:", err);
         alert("Something went wrong while deleting.");
     }
 }
