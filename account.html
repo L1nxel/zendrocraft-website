@@ -307,7 +307,16 @@ async function loadAdminTickets(statusFilter = 'all') {
                     </div>
                     <h4 class="font-semibold">${ticket.title}</h4>
                 </div>
-                <span class="px-3 py-1 text-xs rounded-full ${statusColor}">${ticket.status}</span>
+                <div class="flex items-center gap-x-2">
+                    <span class="px-3 py-1 text-xs rounded-full ${statusColor}">${ticket.status}</span>
+                    
+                    <!-- Delete Button -->
+                    <button onclick="deleteTicket('${ticket.id}', event)"
+                            class="text-red-400 hover:text-red-500 p-2 rounded-xl hover:bg-red-500/10 transition-colors"
+                            title="Delete Ticket">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             </div>
             <p class="text-sm text-slate-300 line-clamp-2">${ticket.description}</p>
         `;
@@ -687,6 +696,54 @@ likes.forEach(like => {
         initSupabase();
         checkAuthAndLoadData();
     }
+
+async function deleteTicket(ticketId, event) {
+    event.stopImmediatePropagation(); // Prevent opening the modal
+
+    if (!confirm("Are you sure you want to delete this ticket?\nThis will also delete all messages in the conversation.")) {
+        return;
+    }
+
+    try {
+        // Delete all messages first
+        await supabaseClient.from('ticket_messages').delete().eq('ticket_id', ticketId);
+
+        // Then delete the ticket
+        const { error } = await supabaseClient.from('tickets').delete().eq('id', ticketId);
+
+        if (error) {
+            alert("Failed to delete ticket.");
+            console.error(error);
+        } else {
+            alert("Ticket deleted successfully.");
+            loadAdminTickets(); // Refresh the list
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Something went wrong while deleting.");
+    }
+}
+
+async function deleteTicketFromModal() {
+    if (!currentAdminTicketId) return;
+
+    if (!confirm("Delete this ticket and all its messages?")) {
+        return;
+    }
+
+    try {
+        await supabaseClient.from('ticket_messages').delete().eq('ticket_id', currentAdminTicketId);
+        await supabaseClient.from('tickets').delete().eq('id', currentAdminTicketId);
+
+        closeAdminTicketModal();
+        loadAdminTickets();
+        alert("Ticket deleted successfully.");
+    } catch (err) {
+        console.error(err);
+        alert("Failed to delete ticket.");
+    }
+}
+
 </script>
 
 <!-- Admin Ticket Modal -->
@@ -711,6 +768,16 @@ likes.forEach(like => {
                 <button onclick="sendAdminReply()" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-3xl font-semibold flex items-center justify-center">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
+            </div>
+
+            <!-- Delete Button -->
+                <div class="mt-4 flex justify-end">
+                    <button onclick="deleteTicketFromModal()" 
+                            class="flex items-center gap-x-2 px-4 py-2 text-sm text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-colors">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Delete Ticket</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
