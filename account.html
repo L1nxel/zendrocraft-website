@@ -381,6 +381,9 @@
         if (user.email === 'ZendroCraftAdmin@gmail.com') {
             document.getElementById('admin-dashboard').classList.remove('hidden');
             loadAdminTickets();
+            console.log("Admin dashboard should be visible now");
+        } else {
+            console.log("Not admin email:", user.email);
         }
 
         // Load liked posts
