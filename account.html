@@ -235,11 +235,26 @@
     let allAdminTickets = [];
     let currentAdminTicketId = null;
 
+function filterAdminTickets(status, element) {
+    // Remove active style from all buttons
+    document.querySelectorAll('.admin-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-amber-600');
+        btn.classList.add('bg-slate-800');
+    });
+
+    // Activate the clicked button
+    if (element) {
+        element.classList.remove('bg-slate-800');
+        element.classList.add('bg-amber-600');
+    }
+
+    loadAdminTickets(status);
+}
+
 async function loadAdminTickets(statusFilter = 'all') {
     const container = document.getElementById('admin-tickets-list');
     container.innerHTML = `<div class="text-center py-6 text-slate-500">Loading tickets...</div>`;
 
-    // Simple query without joining profiles (avoids RLS error)
     const { data: tickets, error } = await supabaseClient
         .from('tickets')
         .select('*')
@@ -266,7 +281,6 @@ async function loadAdminTickets(statusFilter = 'all') {
     container.innerHTML = '';
 
     filtered.forEach(ticket => {
-        // Format date + time in CDT
         const date = new Date(ticket.created_at).toLocaleString('en-US', {
             timeZone: 'America/Chicago',
             month: 'short',
@@ -280,13 +294,15 @@ async function loadAdminTickets(statusFilter = 'all') {
         let statusColor = ticket.status === 'Closed' ? 'bg-slate-700 text-slate-400' : 
                          ticket.status === 'Waiting for Response' ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400';
 
+        const username = ticket.username || 'Unknown';
+
         const card = document.createElement('div');
         card.className = `bg-slate-950 border border-slate-700 rounded-2xl p-5 cursor-pointer hover:border-amber-500/50 transition-colors`;
         card.innerHTML = `
             <div class="flex justify-between items-start mb-2">
                 <div>
                     <div class="flex items-center gap-x-2 mb-1">
-                        <span class="text-sm font-medium text-emerald-400">User</span>
+                        <span class="text-sm font-medium text-emerald-400">${username}</span>
                         <span class="text-xs text-slate-500">${date}</span>
                     </div>
                     <h4 class="font-semibold">${ticket.title}</h4>
