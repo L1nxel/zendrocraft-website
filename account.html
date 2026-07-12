@@ -235,56 +235,65 @@
     let allAdminTickets = [];
     let currentAdminTicketId = null;
 
-    async function loadAdminTickets(statusFilter = 'all') {
-        const container = document.getElementById('admin-tickets-list');
-        container.innerHTML = `<div class="text-center py-6 text-slate-500">Loading tickets...</div>`;
+async function loadAdminTickets(statusFilter = 'all') {
+    const container = document.getElementById('admin-tickets-list');
+    container.innerHTML = `<div class="text-center py-6 text-slate-500">Loading tickets...</div>`;
 
-        const { data: tickets } = await supabaseClient.from('tickets').select('*').order('created_at', { ascending: false });
-        allAdminTickets = tickets || [];
+    const { data: tickets } = await supabaseClient
+        .from('tickets')
+        .select('*, profiles(username)')
+        .order('created_at', { ascending: false });
 
-        let filtered = allAdminTickets;
-        if (statusFilter !== 'all') {
-            filtered = allAdminTickets.filter(t => t.status === statusFilter);
-        }
+    allAdminTickets = tickets || [];
 
-        if (filtered.length === 0) {
-            container.innerHTML = `<div class="text-center py-8 text-slate-500">No tickets found.</div>`;
-            return;
-        }
+    let filtered = allAdminTickets;
+    if (statusFilter !== 'all') {
+        filtered = allAdminTickets.filter(t => t.status === statusFilter);
+    }
 
-        container.innerHTML = '';
-        filtered.forEach(ticket => {
-            const date = new Date(ticket.created_at).toLocaleDateString();
-            let statusColor = ticket.status === 'Closed' ? 'bg-slate-700 text-slate-400' : 
-                             ticket.status === 'Waiting for Response' ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400';
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-slate-500">No tickets found.</div>`;
+        return;
+    }
 
-            const card = document.createElement('div');
-            card.className = `bg-slate-950 border border-slate-700 rounded-2xl p-5 cursor-pointer hover:border-amber-500/50 transition-colors`;
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <span class="text-sm text-slate-400">${date}</span>
-                        <h4 class="font-semibold mt-1">${ticket.title}</h4>
+    container.innerHTML = '';
+
+    filtered.forEach(ticket => {
+        // Format date + time in CDT
+        const date = new Date(ticket.created_at).toLocaleString('en-US', {
+            timeZone: 'America/Chicago',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+
+        let statusColor = ticket.status === 'Closed' ? 'bg-slate-700 text-slate-400' : 
+                         ticket.status === 'Waiting for Response' ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400';
+
+        const username = ticket.profiles?.username || 'Unknown';
+
+        const card = document.createElement('div');
+        card.className = `bg-slate-950 border border-slate-700 rounded-2xl p-5 cursor-pointer hover:border-amber-500/50 transition-colors`;
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <div class="flex items-center gap-x-2 mb-1">
+                        <span class="text-sm font-medium text-emerald-400">${username}</span>
+                        <span class="text-xs text-slate-500">${date}</span>
                     </div>
-                    <span class="px-3 py-1 text-xs rounded-full ${statusColor}">${ticket.status}</span>
+                    <h4 class="font-semibold">${ticket.title}</h4>
                 </div>
-                <p class="text-sm text-slate-300 line-clamp-2">${ticket.description}</p>
-            `;
-            card.onclick = () => openAdminTicketModal(ticket);
-            container.appendChild(card);
-        });
-    }
-
-    function filterAdminTickets(status, element) {
-        document.querySelectorAll('.admin-filter-btn').forEach(btn => {
-            btn.classList.remove('bg-amber-600');
-            btn.classList.add('bg-slate-800');
-        });
-        element.classList.remove('bg-slate-800');
-        element.classList.add('bg-amber-600');
-
-        loadAdminTickets(status);
-    }
+                <span class="px-3 py-1 text-xs rounded-full ${statusColor}">${ticket.status}</span>
+            </div>
+            <p class="text-sm text-slate-300 line-clamp-2">${ticket.description}</p>
+        `;
+        card.onclick = () => openAdminTicketModal(ticket);
+        container.appendChild(card);
+    });
+}
 
     async function openAdminTicketModal(ticket) {
         currentAdminTicketId = ticket.id;
