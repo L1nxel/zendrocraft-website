@@ -698,29 +698,71 @@ likes.forEach(like => {
     }
 
 async function deleteTicket(ticketId, event) {
-    event.stopImmediatePropagation(); // Prevent opening the modal
+    event.stopImmediatePropagation();
 
-    if (!confirm("Are you sure you want to delete this ticket?\nThis will also delete all messages in the conversation.")) {
+    if (!confirm("Delete this ticket and all its messages? This cannot be undone.")) {
         return;
     }
 
     try {
-        // Delete all messages first
-        await supabaseClient.from('ticket_messages').delete().eq('ticket_id', ticketId);
+        console.log("Attempting to delete ticket:", ticketId);
 
-        // Then delete the ticket
-        const { error } = await supabaseClient.from('tickets').delete().eq('id', ticketId);
+        // Delete messages first
+        const { error: msgError } = await supabaseClient
+            .from('ticket_messages')
+            .delete()
+            .eq('ticket_id', ticketId);
+
+        if (msgError) {
+            console.error("Error deleting messages:", msgError);
+        }
+
+        // Delete the ticket
+        const { error: ticketError } = await supabaseClient
+            .from('tickets')
+            .delete()
+            .eq('id', ticketId);
+
+        if (ticketError) {
+            console.error("Delete ticket error:", ticketError);
+            alert("Failed to delete ticket. Check console for details.");
+            return;
+        }
+
+        alert("Ticket deleted successfully.");
+        loadAdminTickets();
+
+    } catch (err) {
+        console.error("Unexpected error while deleting:", err);
+        alert("Something went wrong while deleting the ticket.");
+    }
+}
+
+async function deleteTicketFromModal() {
+    if (!currentAdminTicketId) return;
+
+    if (!confirm("Delete this ticket and all its messages?")) {
+        return;
+    }
+
+    try {
+        await supabaseClient.from('ticket_messages').delete().eq('ticket_id', currentAdminTicketId);
+
+        const { error } = await supabaseClient.from('tickets').delete().eq('id', currentAdminTicketId);
 
         if (error) {
+            console.error("Modal delete error:", error);
             alert("Failed to delete ticket.");
-            console.error(error);
-        } else {
-            alert("Ticket deleted successfully.");
-            loadAdminTickets(); // Refresh the list
+            return;
         }
+
+        closeAdminTicketModal();
+        loadAdminTickets();
+        alert("Ticket deleted successfully.");
+
     } catch (err) {
         console.error(err);
-        alert("Something went wrong while deleting.");
+        alert("Something went wrong.");
     }
 }
 
