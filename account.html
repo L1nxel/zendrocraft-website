@@ -250,7 +250,7 @@ function filterAdminTickets(status, element) {
 
     loadAdminTickets(status);
 }
-
+ 
 async function loadAdminTickets(statusFilter = 'all') {
     const container = document.getElementById('admin-tickets-list');
     container.innerHTML = `<div class="text-center py-6 text-slate-500">Loading tickets...</div>`;
