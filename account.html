@@ -700,41 +700,46 @@ likes.forEach(like => {
 async function deleteTicket(ticketId, event) {
     event.stopImmediatePropagation();
 
-    if (!confirm("Delete this ticket and all its messages? This cannot be undone.")) {
+    if (!confirm("Delete this ticket and all its messages?")) {
         return;
     }
 
-    try {
-        console.log("Attempting to delete ticket:", ticketId);
+    console.log("Starting delete for ticket:", ticketId);
 
-        // Delete messages first
+    try {
+        // Step 1: Delete messages
+        console.log("Deleting messages...");
         const { error: msgError } = await supabaseClient
             .from('ticket_messages')
             .delete()
             .eq('ticket_id', ticketId);
 
         if (msgError) {
-            console.error("Error deleting messages:", msgError);
+            console.error("Messages delete error:", msgError);
+        } else {
+            console.log("Messages deleted successfully");
         }
 
-        // Delete the ticket
+        // Step 2: Delete ticket
+        console.log("Deleting ticket...");
         const { error: ticketError } = await supabaseClient
             .from('tickets')
             .delete()
             .eq('id', ticketId);
 
         if (ticketError) {
-            console.error("Delete ticket error:", ticketError);
-            alert("Failed to delete ticket. Check console for details.");
+            console.error("TICKET DELETE ERROR:", ticketError);
+            alert("Failed to delete ticket. See console for details.");
             return;
         }
 
+        console.log("Ticket deleted successfully!");
         alert("Ticket deleted successfully.");
         loadAdminTickets();
 
     } catch (err) {
-        console.error("Unexpected error while deleting:", err);
-        alert("Something went wrong while deleting the ticket.");
+        console.error("Unexpected error in deleteTicket:", err);
+        alert("Something went wrong while deleting.");
     }
 }
 
