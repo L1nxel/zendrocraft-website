@@ -372,41 +372,59 @@
     }
 
     // Submit new ticket (with email)
-    async function handleTicketSubmit(e) {
-        e.preventDefault();
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
+async function handleTicketSubmit(e) {
+    e.preventDefault();
 
-        const openCount = await getOpenTicketCount(user.id);
-        if (openCount >= MAX_OPEN_TICKETS) {
-            alert(`You can only have ${MAX_OPEN_TICKETS} open tickets.`);
-            return;
-        }
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
 
-        const category = document.getElementById('ticket-category').value;
-        const title = document.getElementById('ticket-title').value.trim();
-        const description = document.getElementById('ticket-description').value.trim();
-        const username = user.user_metadata?.username || user.email.split('@')[0];
-
-        const { data: insertedTicket, error } = await supabaseClient.from('tickets').insert({
-            user_id: user.id,
-            username: username,           // ← Saves the username
-            category,
-            title,
-            description,
-            status: 'Open'
-        }).select().single();
-
-        try {
-            await supabaseClient.functions.invoke('clever-endpoint', {
-                body: { type: 'new_ticket', ticket: { ...inserted, username } }
-            });
-        } catch (e) {}
-
-        alert("Ticket created!");
-        document.getElementById('ticket-form').reset();
-        loadMyTickets();
+    const openCount = await getOpenTicketCount(user.id);
+    if (openCount >= MAX_OPEN_TICKETS) {
+        alert(`You can only have ${MAX_OPEN_TICKETS} open tickets.`);
+        return;
     }
+
+    const category = document.getElementById('ticket-category').value;
+    const title = document.getElementById('ticket-title').value.trim();
+    const description = document.getElementById('ticket-description').value.trim();
+    const username = user.user_metadata?.username || user.email.split('@')[0];
+
+    const { data: inserted, error: insertError } = await supabaseClient.from('tickets').insert({
+        user_id: user.id,
+        username: username,
+        category,
+        title,
+        description,
+        status: 'Open'
+    }).select().single();
+
+    if (insertError) {
+        alert("Failed to create ticket: " + insertError.message);
+        return;
+    }
+
+    // Send notification with better error handling
+    try {
+        const { error: funcError } = await supabaseClient.functions.invoke('clever-endpoint', {
+            body: { 
+                type: 'new_ticket', 
+                ticket: { ...inserted, username } 
+            }
+        });
+
+        if (funcError) {
+            console.error("Edge Function error on new ticket:", funcError);
+        } else {
+            console.log("New ticket notification triggered successfully");
+        }
+    } catch (err) {
+        console.error("Failed to invoke Edge Function for new ticket:", err);
+    }
+
+    alert("Ticket created successfully!");
+    document.getElementById('ticket-form').reset();
+    loadMyTickets();
+}
 
     function initializePage() {
         initSupabase();
